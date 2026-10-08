@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Ebb",
+  "version": "0.1.0",
+  "description": "Archives tabs you haven't looked at in a while, like Arc did. Find them in the side panel or by typing ebb in the address bar.",
+  "minimum_chrome_version": "121",
+  "icons": { "16": "icons/16.png", "32": "icons/32.png", "48": "icons/48.png", "128": "icons/128.png" },
+  "action": {
+    "default_title": "Ebb archive",
+    "default_icon": { "16": "icons/16.png", "32": "icons/32.png" }
+  },
+  "background": { "service_worker": "background.js", "type": "module" },
+  "side_panel": { "default_path": "panel.html" },
+  "omnibox": { "keyword": "ebb" },
+  "commands": {
+    "clear-window": { "description": "Archive every unprotected tab in this window" }
+  },
+  "permissions": ["alarms", "favicon", "idle", "sessions", "sidePanel", "storage", "tabs"]
+}

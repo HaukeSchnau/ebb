@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ebb</title>
+  <link rel="stylesheet" href="panel.css">
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <h1>Archive <span id="count"></span></h1>
+      <button id="clear" title="Archive every unprotected tab in this window">Clear window</button>
+    </div>
+    <input id="search" type="search" placeholder="Search archived tabs" autocomplete="off" autofocus>
+  </header>
+  <main id="list"></main>
+  <p id="empty" hidden></p>
+  <footer>
+    <details>
+      <summary id="next-summary">Next to go</summary>
+      <ol id="next-list"></ol>
+    </details>
+    <details>
+      <summary>Clock</summary>
+      <div id="clock-body"></div>
+    </details>
+  </footer>
+  <script type="module" src="panel.js"></script>
+</body>
+</html>
