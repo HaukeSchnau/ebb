@@ -1,8 +1,8 @@
 import { search, type Entry } from "./archive.ts";
 import { ago, duration } from "./format.ts";
 import { send } from "./messages.ts";
-import { DAY, assess, hostOf, type Protection } from "./rules.ts";
-import { local, session } from "./storage.ts";
+import { DAY, HOUR, assess, hostOf, type Protection } from "./rules.ts";
+import { currentRules, local, session, settings } from "./storage.ts";
 
 function element<T extends HTMLElement>(id: string, type: { new (): T; prototype: T }): T {
   const found = document.getElementById(id);
@@ -28,6 +28,18 @@ const clearButton = element("clear", HTMLButtonElement);
 const nextSummary = element("next-summary", HTMLElement);
 const nextList = element("next-list", HTMLOListElement);
 const clockBody = element("clock-body", HTMLDivElement);
+const thresholdSelect = element("threshold", HTMLSelectElement);
+const protectGroups = element("protect-groups", HTMLInputElement);
+
+const THRESHOLDS = [
+  [3 * HOUR, "3 hours"],
+  [12 * HOUR, "12 hours"],
+  [DAY, "1 day"],
+  [7 * DAY, "7 days"],
+  [30 * DAY, "30 days"],
+] as const;
+
+const thresholdLabel = (ms: number) => THRESHOLDS.find(([value]) => value === ms)?.[1] ?? duration(ms);
 
 const PROTECTION_LABELS: Record<Protection, string> = {
   active: "active",
@@ -82,7 +94,7 @@ function entryRow(entry: Entry, now: number) {
 }
 
 async function renderArchive(now: number) {
-  const { archive } = await local.get("archive");
+  const [{ archive }, { thresholdMs }] = await Promise.all([local.get("archive"), settings.get("thresholdMs")]);
   const results = search(archive, searchInput.value);
   count.textContent = archive.length ? String(archive.length) : "";
   const days = Map.groupBy(results, (entry) => dayLabel(entry.archivedAt, now));
@@ -92,16 +104,17 @@ async function renderArchive(now: number) {
   empty.hidden = results.length > 0;
   empty.textContent = archive.length
     ? "Nothing matches."
-    : "Nothing archived yet. Tabs you haven't looked at for 12 hours of computer time land here.";
+    : `Nothing archived yet. Tabs you haven't looked at for ${thresholdLabel(thresholdMs)} of computer time land here.`;
 }
 
 async function renderUpcoming(now: number) {
-  const [tabs, { ledger }, { ebbSaw }] = await Promise.all([
+  const [tabs, { ledger }, { ebbSaw }, rules] = await Promise.all([
     chrome.tabs.query({ windowType: "normal" }),
     local.get("ledger"),
     session.get("ebbSaw"),
+    currentRules(),
   ]);
-  const assessed = assess(tabs, ebbSaw, now, ledger.gaps);
+  const assessed = assess(tabs, ebbSaw, now, ledger.gaps, rules);
   const upcoming = assessed
     .flatMap(({ tab, id, verdict }) =>
       verdict.kind === "protected" ? [] : [{ tab, id, left: verdict.kind === "keep" ? verdict.archivesInMs : 0 }],
@@ -144,6 +157,16 @@ async function renderUpcoming(now: number) {
   );
 }
 
+async function renderSettings() {
+  const current = await settings.get("thresholdMs", "protectGroups");
+  thresholdSelect.value = String(current.thresholdMs);
+  protectGroups.checked = current.protectGroups;
+}
+
+thresholdSelect.append(...THRESHOLDS.map(([ms, label]) => h("option", { value: String(ms), textContent: label })));
+thresholdSelect.addEventListener("change", () => void settings.set({ thresholdMs: Number(thresholdSelect.value) }));
+protectGroups.addEventListener("change", () => void settings.set({ protectGroups: protectGroups.checked }));
+
 let pending: ReturnType<typeof setTimeout> | undefined;
 function render() {
   clearTimeout(pending);
@@ -151,6 +174,7 @@ function render() {
     const now = Date.now();
     void renderArchive(now);
     void renderUpcoming(now);
+    void renderSettings();
   }, 100);
 }
 

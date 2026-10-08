@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
-import { EMPTY_LEDGER, observe } from "../src/ledger.ts";
-import { DAY, HOUR, MINUTE } from "../src/rules.ts";
+import { EMPTY_LEDGER, ledgerAtInstall, observe } from "../src/ledger.ts";
+import { DAY, HOUR, MINUTE, RULES, judge } from "../src/rules.ts";
 
 const t0 = Date.parse("2026-10-12T09:00:00Z");
 
@@ -27,4 +27,10 @@ test("a hole from sleep or a quit browser becomes a gap", () => {
 test("forgets gaps older than 30 days", () => {
   const old = { presentAt: t0, gaps: [{ start: t0 - 40 * DAY, end: t0 - 31 * DAY }] };
   expect(observe(old, t0 + MINUTE, true).gaps).toEqual([]);
+});
+
+test("time before install doesn't count, so installing never archives a backlog at once", () => {
+  const tab = { active: false, pinned: false, groupId: -1, audible: false, url: "https://example.com/", lastAccessed: t0 - 3 * DAY };
+  const { gaps } = ledgerAtInstall(t0);
+  expect(judge(tab, RULES, t0 + HOUR, gaps, tab.lastAccessed)).toMatchObject({ kind: "keep", idleMs: HOUR });
 });

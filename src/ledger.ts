@@ -6,6 +6,11 @@ export type Ledger = { presentAt: number | null; gaps: Gap[] };
 
 export const EMPTY_LEDGER: Ledger = { presentAt: null, gaps: [] };
 
+// Ebb wasn't watching before it was installed, so none of that time counts.
+export function ledgerAtInstall(now: number): Ledger {
+  return { presentAt: now, gaps: [{ start: 0, end: now }] };
+}
+
 const TICK_SLACK = 3 * MINUTE;
 const RETENTION = 30 * DAY;
 

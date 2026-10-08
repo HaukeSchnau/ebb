@@ -14,8 +14,9 @@ h1 { font-size: 15px; margin: 0; }
 h1 span { color: var(--muted); font-weight: 400; font-size: 12px; margin-left: 4px; }
 button { font: inherit; font-size: 12px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 7px; padding: 3px 9px; cursor: pointer; }
 button:hover { border-color: var(--accent); }
-input { width: 100%; margin-top: 8px; font: inherit; padding: 6px 9px; border-radius: 8px; border: 1px solid var(--line); background: var(--hover); color: var(--ink); outline: none; }
-input:focus { border-color: var(--accent); }
+#search { width: 100%; margin-top: 8px; font: inherit; padding: 6px 9px; border-radius: 8px; border: 1px solid var(--line); background: var(--hover); color: var(--ink); outline: none; }
+#search:focus { border-color: var(--accent); }
+input[type="checkbox"] { accent-color: var(--accent); margin: 0; }
 main { padding: 4px 6px; flex: 1; }
 h2 { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin: 12px 6px 4px; }
 .entry, li { display: grid; grid-template-columns: 16px 1fr auto; grid-template-rows: auto auto; column-gap: 8px; align-items: center; padding: 6px; border-radius: 8px; color: inherit; text-decoration: none; cursor: pointer; position: relative; }
@@ -32,3 +33,7 @@ ol { list-style: none; margin: 0; padding: 0; }
 #clock-body { padding: 0 6px 6px; color: var(--muted); font-size: 12px; }
 #clock-body p { margin: 0 0 6px; }
 .gap { font-family: ui-monospace, monospace; font-size: 11.5px; padding: 2px 0; }
+#settings { padding: 0 6px 8px; display: grid; gap: 8px; font-size: 12.5px; }
+#settings label { display: flex; align-items: center; gap: 8px; }
+#settings select { font: inherit; padding: 2px 4px; border-radius: 6px; border: 1px solid var(--line); background: var(--hover); color: var(--ink); }
+#settings p { margin: 0; color: var(--muted); font-size: 12px; }

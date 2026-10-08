@@ -1,9 +1,9 @@
 import { isRecordable, search, upsert, without, type Entry } from "./archive.ts";
 import { ago, xml } from "./format.ts";
-import { observe } from "./ledger.ts";
+import { ledgerAtInstall, observe } from "./ledger.ts";
 import type { Message } from "./messages.ts";
-import { RULES, assess, hostOf, type Gap } from "./rules.ts";
-import { local, session } from "./storage.ts";
+import { assess, hostOf, type Gap, type Rules } from "./rules.ts";
+import { currentRules, local, session } from "./storage.ts";
 
 type Disposition = `${chrome.omnibox.OnInputEnteredDisposition}`;
 type Doomed = { tab: chrome.tabs.Tab; id: number; idleMs: number };
@@ -19,7 +19,10 @@ function serial<T>(job: () => Promise<T>): Promise<T> {
   return run;
 }
 
-chrome.runtime.onInstalled.addListener(() => void setup());
+chrome.runtime.onInstalled.addListener(({ reason }) => {
+  if (reason === "install") void serial(() => local.set({ ledger: ledgerAtInstall(Date.now()) }));
+  void setup();
+});
 chrome.runtime.onStartup.addListener(() => void setup());
 
 async function setup() {
@@ -42,10 +45,11 @@ async function tick() {
   const { ledger } = await local.get("ledger");
   const next = observe(ledger, now, present);
   if (next !== ledger) await local.set({ ledger: next });
-  if (!present && RULES.clock === "present") return;
+  const rules = await currentRules();
+  if (!present && rules.clock === "present") return;
 
   const tabs = await chrome.tabs.query({ windowType: "normal" });
-  const assessed = await assessAndRemember(tabs, now, next.gaps);
+  const assessed = await assessAndRemember(tabs, now, next.gaps, rules);
   await archiveTabs(
     assessed.flatMap(({ tab, id, verdict }) => (verdict.kind === "archive" ? [{ tab, id, idleMs: verdict.idleMs }] : [])),
     now,
@@ -54,17 +58,21 @@ async function tick() {
 
 async function clearWindow(windowId: number) {
   const now = Date.now();
-  const [tabs, { ledger }] = await Promise.all([chrome.tabs.query({ windowId, windowType: "normal" }), local.get("ledger")]);
-  const assessed = await assessAndRemember(tabs, now, ledger.gaps);
+  const [tabs, { ledger }, rules] = await Promise.all([
+    chrome.tabs.query({ windowId, windowType: "normal" }),
+    local.get("ledger"),
+    currentRules(),
+  ]);
+  const assessed = await assessAndRemember(tabs, now, ledger.gaps, rules);
   await archiveTabs(
     assessed.flatMap(({ tab, id, verdict }) => (verdict.kind === "protected" ? [] : [{ tab, id, idleMs: verdict.idleMs }])),
     now,
   );
 }
 
-async function assessAndRemember(tabs: chrome.tabs.Tab[], now: number, gaps: readonly Gap[]) {
+async function assessAndRemember(tabs: chrome.tabs.Tab[], now: number, gaps: readonly Gap[], rules: Rules) {
   const { ebbSaw } = await session.get("ebbSaw");
-  const assessed = assess(tabs, ebbSaw, now, gaps);
+  const assessed = assess(tabs, ebbSaw, now, gaps, rules);
   const firstSightings = assessed.filter((a) => a.firstSighting);
   if (firstSightings.length > 0) {
     for (const { id } of firstSightings) ebbSaw[id] = now;

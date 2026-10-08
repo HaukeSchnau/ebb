@@ -1,13 +1,13 @@
 {
   "name": "ebb",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "rm -rf dist && tsc -p tsconfig.build.json && cp -r static/. dist/",
     "check": "tsc -p tsconfig.json",
     "test": "bun test",
-    "pack": "bun run build && tar -czf ebb.tar.gz --transform 's,^dist,ebb,' dist"
+    "zip": "rm -f ebb.zip && bun run build && cd dist && zip -qr ../ebb.zip ."
   },
   "devDependencies": {
     "@types/bun": "^1.4.2",
