@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Ebb: Auto-Archive Old Tabs",
   "short_name": "Ebb",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Closes tabs you haven't looked at in a while and keeps them in a searchable archive, so you can reopen any of them later.",
   "homepage_url": "https://github.com/HaukeSchnau/ebb",
   "minimum_chrome_version": "121",

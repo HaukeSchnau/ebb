@@ -12,6 +12,10 @@ export function thresholdLabel(ms: number): string {
   return THRESHOLD_LABELS.get(ms) ?? duration(ms);
 }
 
+export function plural(n: number, noun: string): string {
+  return `${n} ${noun}${n === 1 ? "" : "s"}`;
+}
+
 export function ago(then: number, now: number): string {
   const ms = Math.max(0, now - then);
   if (ms < MINUTE) return "just now";

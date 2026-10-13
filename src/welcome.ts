@@ -1,4 +1,4 @@
-import { thresholdLabel } from "./format.ts";
+import { plural, thresholdLabel } from "./format.ts";
 import { send } from "./messages.ts";
 import { THRESHOLDS } from "./rules.ts";
 import { settings } from "./storage.ts";
@@ -29,7 +29,7 @@ clear.addEventListener("click", async () => {
     result.textContent = "Nothing to archive here. Every other tab in this window is protected.";
     return;
   }
-  result.textContent = `Archived ${cleared.count} ${cleared.count === 1 ? "tab" : "tabs"}.`;
+  result.textContent = `Archived ${plural(cleared.count, "tab")}.`;
   tryButtons.replaceChildren(
     // Opening the side panel needs a click, which this is.
     h("button", { className: "primary", textContent: "Open the archive", onclick: () => void chrome.sidePanel.open({ windowId }) }),

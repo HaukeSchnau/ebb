@@ -2,13 +2,13 @@
   --bg: #f5f4f0; --panel: #ffffff; --ink: #1c1b19; --muted: #6d6a63; --line: #e3e0d8; --accent: #5a54d6;
   --accent-soft: #ecebfb; --accent-ink: #ffffff;
   color-scheme: light dark;
-  font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root { --bg: #141413; --panel: #1d1c1a; --ink: #ecebe6; --muted: #9c988f; --line: #2f2e2a; --accent: #8f8af0; --accent-soft: #29274d; --accent-ink: #141413; }
 }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--ink); }
+/* On body, not :root: Chrome injects body { font-size: 75% } into extension pages. */
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
 main { max-width: 620px; margin: 0 auto; padding: 56px 24px 64px; }
 .glyph { display: grid; gap: 5px; width: 44px; margin-bottom: 18px; }
 .glyph i { display: block; height: 8px; border-radius: 4px; background: var(--accent); }
@@ -20,6 +20,7 @@ h2 { font-size: 15px; margin: 0 0 8px; }
 .steps { padding: 0; margin: 0 0 32px; list-style: none; counter-reset: step; display: grid; gap: 14px; }
 .steps li { counter-increment: step; display: grid; grid-template-columns: 28px 1fr; gap: 10px; }
 .steps li::before { content: counter(step); width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font: 700 12px/24px ui-monospace, monospace; text-align: center; }
+.steps p { margin: 0; }
 .steps b { display: block; }
 kbd { font: 12px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; background: var(--panel); }
 section { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; }

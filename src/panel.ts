@@ -1,5 +1,5 @@
 import { search, sweeps, topSites, type Entry, type Sweep } from "./archive.ts";
-import { ago, duration, thresholdLabel } from "./format.ts";
+import { ago, duration, plural, thresholdLabel } from "./format.ts";
 import { keptIds } from "./kept.ts";
 import { suggest, type Suggestion } from "./learn.ts";
 import { send } from "./messages.ts";
@@ -234,7 +234,7 @@ clearButton.addEventListener("click", async () => {
   if (cleared === null || cleared.count === 0) {
     showUndo("Nothing to clear. Every tab in this window is protected.");
   } else {
-    showUndo(`Archived ${cleared.count} ${cleared.count === 1 ? "tab" : "tabs"}.`, {
+    showUndo(`Archived ${plural(cleared.count, "tab")}.`, {
       label: "Undo",
       run: () => void send({ type: "reopen-sweep", at: cleared.at }),
     });
@@ -284,7 +284,7 @@ async function renderTabs(now: number) {
   const titles = new Map(tabs.map((t) => [t.id, t.title || t.url || ""]));
   const keptOpen = keptTabs.flatMap((k) => (k.id === undefined ? [] : [{ id: k.id, title: titles.get(k.id) ?? k.url }]));
   const remove = (label: string, onclick: () => void) => h("button", { textContent: "×", title: label, onclick });
-  keptSummary.textContent = `Kept · ${rules.keptSites.length} sites · ${keptOpen.length} tabs`;
+  keptSummary.textContent = `Kept · ${plural(rules.keptSites.length, "site")} · ${plural(keptOpen.length, "tab")}`;
   keptBody.replaceChildren(
     ...(rules.keptSites.length + keptOpen.length === 0
       ? [h("p", { textContent: "Right-click a page and choose Ebb's \"Keep this tab\" or \"Never archive\" to list it here." })]

@@ -2,13 +2,13 @@
   --bg: #ffffff; --ink: #1c1b19; --muted: #6d6a63; --line: #e7e4dd; --hover: #f3f2ee; --accent: #5a54d6;
   --accent-soft: #ecebfb; --accent-ink: #ffffff;
   color-scheme: light dark;
-  font: 13px/1.4 ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
 @media (prefers-color-scheme: dark) {
   :root { --bg: #1d1c1a; --ink: #ecebe6; --muted: #9c988f; --line: #2f2e2a; --hover: #262522; --accent: #8f8af0; --accent-soft: #2a284a; --accent-ink: #141413; }
 }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; display: flex; flex-direction: column; }
+/* On body, not :root: Chrome injects body { font-size: 75% } into extension pages. */
+body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; display: flex; flex-direction: column; font: 13px/1.4 ui-sans-serif, system-ui, -apple-system, sans-serif; }
 header { position: sticky; top: 0; background: var(--bg); padding: 12px 12px 8px; border-bottom: 1px solid var(--line); z-index: 1; }
 .bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 h1 { font-size: 15px; margin: 0; }
@@ -26,6 +26,7 @@ button.link { border: 0; background: none; color: var(--accent); padding: 0; }
 .sites button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
 input[type="checkbox"] { accent-color: var(--accent); margin: 0; }
 .undo { margin: 8px 8px 0; padding: 7px 10px; border-radius: 8px; background: var(--ink); color: var(--bg); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.undo[hidden] { display: none; }
 .undo button { background: none; border-color: transparent; color: var(--bg); font-weight: 600; }
 #suggestions { display: grid; gap: 6px; padding: 8px 8px 0; }
 #suggestions:empty { display: none; }
