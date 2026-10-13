@@ -8,16 +8,21 @@ Ebb closes tabs you've stopped looking at and keeps them in an archive you can s
 
 - A tab starts aging when you leave it. Only time at the computer counts. Sleep, a closed browser, and 10 minutes without input don't age your tabs.
 - After 12 hours, Ebb closes the tab and adds it to the archive. You can pick 3 hours, 1 day, 7 days, or 30 days instead.
-- Pinned tabs, tabs in a group, tabs playing audio, and the active tab in each window are never archived. Group protection can be turned off.
+- Pinned tabs, tabs in a group, tabs playing audio, both panes of a split view you're looking at, and the active tab in each window are never archived. Group protection can be turned off.
+- Right-click any page to keep that tab, or to never archive its site. Kept tabs stay kept across browser restarts.
 - Installing Ebb doesn't archive your backlog. Tab ages start counting at install.
 
 ## Getting tabs back
 
-- Click the toolbar icon to open the archive in the side panel. Type to search, press Enter to reopen the top result.
+- Click the toolbar icon, or press Command+Shift+E (Alt+Shift+E elsewhere), to open the archive in the side panel. Search is fuzzy: "gh eff" finds a GitHub page about Effect. ↑ and ↓ pick a result, Enter reopens it, Shift+Delete forgets it. Chips above the results narrow the list to one site.
 - Or type `ebb`, then Space or Tab, in the address bar and search from there.
 - A reopened tab gets its back/forward history back if it's still among the browser's 25 most recently closed tabs.
 - The badge counts tabs archived since you last opened the panel.
-- "Clear window" archives every unprotected tab in the window at once, like Arc's Clear. You can bind a key to it at `chrome://extensions/shortcuts`.
+- "Clear window" archives every unprotected tab in the window at once, like Arc's Clear, with ten seconds to undo. Tabs archived together show up together, with "Reopen all". You can bind a key to Clear window at `chrome://extensions/shortcuts`.
+
+## Learning from you
+
+When you keep bringing back tabs Ebb archived, the threshold is probably too short. If at least 15% of the last 20 or more tabs Ebb archived came back within a day, the panel suggests the next longer threshold. If you reopened one site three times in a week, it offers to keep that site. Ebb never changes a setting on its own, and a dismissed suggestion stays quiet.
 
 ## Install
 
@@ -45,11 +50,12 @@ Ebb makes no network requests and has no server. The archive stays on your devic
 | `sidePanel` | Show the archive next to the page. |
 | `storage` | Keep the archive, away periods, and settings on your device. |
 | `favicon` | Show site icons from the browser's local cache. |
+| `contextMenus` | "Keep this tab" and "Never archive this site" when you right-click a page. |
 
 ## Develop
 
 ```sh
-bun test        # rules, presence ledger, archive
+bun test        # rules, presence ledger, archive, kept tabs, suggestions
 bun run check   # types
 bun run zip     # dist/ and ebb.zip for the Chrome Web Store (needs zip)
 ```

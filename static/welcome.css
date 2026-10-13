@@ -1,0 +1,37 @@
+:root {
+  --bg: #f5f4f0; --panel: #ffffff; --ink: #1c1b19; --muted: #6d6a63; --line: #e3e0d8; --accent: #5a54d6;
+  --accent-soft: #ecebfb; --accent-ink: #ffffff;
+  color-scheme: light dark;
+  font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #141413; --panel: #1d1c1a; --ink: #ecebe6; --muted: #9c988f; --line: #2f2e2a; --accent: #8f8af0; --accent-soft: #29274d; --accent-ink: #141413; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); }
+main { max-width: 620px; margin: 0 auto; padding: 56px 24px 64px; }
+.glyph { display: grid; gap: 5px; width: 44px; margin-bottom: 18px; }
+.glyph i { display: block; height: 8px; border-radius: 4px; background: var(--accent); }
+.glyph i:nth-child(2) { width: 71%; opacity: 0.72; }
+.glyph i:nth-child(3) { width: 42%; opacity: 0.44; }
+h1 { font-size: 30px; margin: 0 0 6px; letter-spacing: -0.02em; }
+h2 { font-size: 15px; margin: 0 0 8px; }
+.lede { color: var(--muted); margin: 0 0 28px; font-size: 16px; }
+.steps { padding: 0; margin: 0 0 32px; list-style: none; counter-reset: step; display: grid; gap: 14px; }
+.steps li { counter-increment: step; display: grid; grid-template-columns: 28px 1fr; gap: 10px; }
+.steps li::before { content: counter(step); width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font: 700 12px/24px ui-monospace, monospace; text-align: center; }
+.steps b { display: block; }
+kbd { font: 12px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; background: var(--panel); }
+section { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; }
+.choices { display: flex; flex-wrap: wrap; gap: 6px; }
+button { font: inherit; font-size: 14px; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 9px; padding: 6px 12px; cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button[aria-checked="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.hint, .try p { color: var(--muted); font-size: 13.5px; margin: 8px 0 0; }
+.try p:first-of-type { margin: 0 0 12px; }
+.buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.result:empty { display: none; }
+.result { color: var(--ink) !important; }
+.fine { color: var(--muted); font-size: 13px; margin-top: 24px; }
+a { color: var(--accent); }

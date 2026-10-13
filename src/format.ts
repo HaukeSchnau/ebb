@@ -1,5 +1,17 @@
 import { DAY, HOUR, MINUTE } from "./rules.ts";
 
+const THRESHOLD_LABELS = new Map([
+  [3 * HOUR, "3 hours"],
+  [12 * HOUR, "12 hours"],
+  [DAY, "1 day"],
+  [7 * DAY, "7 days"],
+  [30 * DAY, "30 days"],
+]);
+
+export function thresholdLabel(ms: number): string {
+  return THRESHOLD_LABELS.get(ms) ?? duration(ms);
+}
+
 export function ago(then: number, now: number): string {
   const ms = Math.max(0, now - then);
   if (ms < MINUTE) return "just now";

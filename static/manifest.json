@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Ebb: Auto-Archive Old Tabs",
   "short_name": "Ebb",
-  "version": "0.2.1",
+  "version": "0.4.0",
   "description": "Closes tabs you haven't looked at in a while and keeps them in a searchable archive, so you can reopen any of them later.",
   "homepage_url": "https://github.com/HaukeSchnau/ebb",
   "minimum_chrome_version": "121",
@@ -30,12 +30,20 @@
     "keyword": "ebb"
   },
   "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+E",
+        "mac": "Command+Shift+E"
+      },
+      "description": "Open the archive"
+    },
     "clear-window": {
       "description": "Archive every unprotected tab in this window"
     }
   },
   "permissions": [
     "alarms",
+    "contextMenus",
     "favicon",
     "idle",
     "sessions",

@@ -12,14 +12,23 @@
       <h1>Archive <span id="count"></span></h1>
       <button id="clear" title="Archive every unprotected tab in this window">Clear window</button>
     </div>
-    <input id="search" type="search" placeholder="Search archived tabs" autocomplete="off" autofocus>
+    <input id="search" type="search" placeholder="Search archived tabs" autocomplete="off" autofocus
+      aria-describedby="keys" aria-controls="list">
+    <div id="sites" class="sites"></div>
+    <p id="keys" class="keys">↑ ↓ to pick · Enter reopens · Shift+Delete forgets</p>
   </header>
-  <main id="list"></main>
+  <div id="undo" class="undo" role="status" hidden></div>
+  <div id="suggestions"></div>
+  <main id="list" role="listbox" aria-label="Archived tabs"></main>
   <p id="empty" hidden></p>
   <footer>
     <details>
       <summary id="next-summary">Next to go</summary>
       <ol id="next-list"></ol>
+    </details>
+    <details>
+      <summary id="kept-summary">Kept</summary>
+      <div id="kept-body" class="kept"></div>
     </details>
     <details>
       <summary>Clock</summary>
@@ -30,7 +39,7 @@
       <div id="settings">
         <label>Archive tabs after <select id="threshold"></select></label>
         <label><input type="checkbox" id="protect-groups"> Never archive tabs in groups</label>
-        <p>Only time at the computer counts. Pinned tabs, tabs playing audio, and the tab you're on are never archived.</p>
+        <p>Only time at the computer counts. Pinned tabs, tabs playing audio, and the tab you're on are never archived. Right-click a page to keep it or its whole site.</p>
       </div>
     </details>
   </footer>

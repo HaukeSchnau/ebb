@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { EMPTY_LEDGER, ledgerAtInstall, observe, prune } from "../src/ledger.ts";
-import { DAY, HOUR, MINUTE, RULES, judge } from "../src/rules.ts";
+import { DAY, HOUR, MINUTE, RULES, age } from "../src/rules.ts";
 
 const t0 = Date.parse("2026-10-12T09:00:00Z");
 
@@ -32,7 +32,6 @@ test("prune keeps every gap since the oldest open tab was last seen, however old
 });
 
 test("time before install doesn't count, so installing never archives a backlog at once", () => {
-  const tab = { active: false, pinned: false, groupId: -1, audible: false, url: "https://example.com/", lastAccessed: t0 - 3 * DAY };
   const { gaps } = ledgerAtInstall(t0);
-  expect(judge(tab, RULES, t0 + HOUR, gaps, tab.lastAccessed)).toMatchObject({ kind: "keep", idleMs: HOUR });
+  expect(age(t0 - 3 * DAY, RULES, t0 + HOUR, gaps)).toMatchObject({ kind: "keep", idleMs: HOUR });
 });
