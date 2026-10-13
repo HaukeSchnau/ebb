@@ -1,4 +1,4 @@
-import { Action, Kiln, On, Task, cmd } from "@kiln/core"
+import { Action, Files, Kiln, On, Task, cmd } from "@kiln/core"
 import { Bun } from "@kiln/std"
 import { flake } from "./flake.ts"
 import * as WebStore from "./WebStore.ts"
@@ -6,23 +6,40 @@ import * as WebStore from "./WebStore.ts"
 const shell = flake.devShells.ci
 const install = Bun.install({ shell })
 
-/** Types, tests and the package the store gets, with its manifest so the release knows the version. */
-const qa = Task.make("qa", {
+/** The extension as the store gets it: dist/ and its zip. */
+const build = Task.make("build", {
   shell,
   setup: install,
-  run: cmd`bun run qa`,
-  outputs: { zip: "ebb.zip", manifest: "dist/manifest.json" },
+  run: cmd`bun run zip`,
+  inputs: Files.glob("src/**", "static/**", "tsconfig.json", "tsconfig.build.json", "package.json", "bun.lock"),
+  outputs: { dist: "dist", zip: "ebb.zip" },
+})
+
+/** Types and unit tests. */
+const qa = Task.make("qa", { shell, setup: install, run: cmd`bun run qa` })
+
+/** That exact build in Chromium. Its output is screenshots of the welcome page and the panel. */
+const e2e = Task.make("e2e", {
+  shell: flake.devShells.e2e,
+  setup: install,
+  run: cmd`bun e2e/extension.ts ${build.outputs.dist} e2e/out`,
+  inputs: Files.of("e2e/extension.ts", "package.json", "bun.lock"),
+  outputs: { screenshots: "e2e/out" },
 })
 
 /**
- * Submits that exact zip when its manifest names a version the store doesn't have yet, so bumping
- * the version and pushing is the release. Every other push ends as `Unchanged`.
+ * Submits the build once qa and e2e pass, when its manifest names a version the store doesn't have
+ * yet: bumping the version and pushing is the release. Every other push ends as `Unchanged`.
  */
 const release = Action.make("release", {
-  needs: { zip: qa.outputs.zip, manifest: qa.outputs.manifest },
+  needs: { zip: build.outputs.zip, dist: build.outputs.dist },
+  after: [qa, e2e],
   grants: { secrets: ["chrome-web-store"] },
-}, function*(files) {
-  return yield* WebStore.release({ publisher: "dea543f7-3e2f-4398-8805-c6aeedf8fdb7", id: "jifmboaehilnoobbnfffolkhioeknlne" }, files)
+}, function*({ zip, dist }) {
+  return yield* WebStore.release(
+    { publisher: "dea543f7-3e2f-4398-8805-c6aeedf8fdb7", id: "jifmboaehilnoobbnfffolkhioeknlne" },
+    { zip, manifest: `${dist}/manifest.json` },
+  )
 })
 
-export default Kiln.project({ rules: [On.pullRequest([qa]), On.push("main", [release])] })
+export default Kiln.project({ rules: [On.pullRequest([qa, e2e]), On.push("main", [release])] })

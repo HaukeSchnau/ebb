@@ -4,5 +4,5 @@ import { Flake } from "@kiln/core"
 export const flake = Flake.make({
   packages: [],
   checks: [],
-  devShells: ["ci", "default"],
+  devShells: ["ci", "default", "e2e"],
 })

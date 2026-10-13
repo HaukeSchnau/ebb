@@ -21,7 +21,20 @@
             pkgs.zip
           ];
         };
-        default = ci;
+        # The browser test: Chromium, and a font so pages lay out and screenshots show text.
+        e2e = pkgs.mkShell {
+          packages = [
+            pkgs.bun
+            pkgs.chromium
+          ];
+          FONTCONFIG_FILE = pkgs.makeFontsConf { fontDirectories = [ pkgs.dejavu_fonts ]; };
+        };
+        default = pkgs.mkShell {
+          inputsFrom = [
+            ci
+            e2e
+          ];
+        };
       });
     };
 }

@@ -7,11 +7,13 @@
     "check": "tsc -p tsconfig.json",
     "test": "bun test",
     "zip": "rm -f ebb.zip && bun run build && cd dist && zip -qr ../ebb.zip .",
-    "qa": "bun run check && bun test && bun run zip"
+    "qa": "bun run check && bun test",
+    "e2e": "bun run zip && bun e2e/extension.ts dist e2e/out"
   },
   "devDependencies": {
     "@types/bun": "^1.4.2",
     "@types/chrome": "^0.3.4",
+    "puppeteer-core": "^25.13.0",
     "typescript": "^7.0.2"
   }
 }
