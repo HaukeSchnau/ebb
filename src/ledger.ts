@@ -1,4 +1,4 @@
-import { DAY, MINUTE, type Gap } from "./rules.ts";
+import { MINUTE, type Gap } from "./rules.ts";
 
 // presentAt only advances on ticks where you're at the computer, so sleep,
 // quitting Helium and walking away all show up as a hole between two ticks.
@@ -12,12 +12,17 @@ export function ledgerAtInstall(now: number): Ledger {
 }
 
 const TICK_SLACK = 3 * MINUTE;
-const RETENTION = 30 * DAY;
 
 export function observe(ledger: Ledger, now: number, present: boolean): Ledger {
   if (!present) return ledger;
   const { presentAt } = ledger;
   const missedTicks = presentAt !== null && now - presentAt > TICK_SLACK;
   const gaps = missedTicks ? [...ledger.gaps, { start: presentAt, end: now }] : ledger.gaps;
-  return { presentAt: now, gaps: gaps.filter((gap) => gap.end > now - RETENTION) };
+  return { presentAt: now, gaps };
+}
+
+// A gap that ended before the oldest open tab was last seen can't change any verdict.
+export function prune(ledger: Ledger, oldestSeen: number): Ledger {
+  const gaps = ledger.gaps.filter((gap) => gap.end > oldestSeen);
+  return gaps.length === ledger.gaps.length ? ledger : { ...ledger, gaps };
 }

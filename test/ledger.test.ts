@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { EMPTY_LEDGER, ledgerAtInstall, observe } from "../src/ledger.ts";
+import { EMPTY_LEDGER, ledgerAtInstall, observe, prune } from "../src/ledger.ts";
 import { DAY, HOUR, MINUTE, RULES, judge } from "../src/rules.ts";
 
 const t0 = Date.parse("2026-10-12T09:00:00Z");
@@ -24,9 +24,11 @@ test("a hole from sleep or a quit browser becomes a gap", () => {
   expect(ledger.gaps).toEqual([{ start: t0, end: t0 + 9 * HOUR }]);
 });
 
-test("forgets gaps older than 30 days", () => {
-  const old = { presentAt: t0, gaps: [{ start: t0 - 40 * DAY, end: t0 - 31 * DAY }] };
-  expect(observe(old, t0 + MINUTE, true).gaps).toEqual([]);
+test("prune keeps every gap since the oldest open tab was last seen, however old", () => {
+  const night = (daysAgo: number) => ({ start: t0 - daysAgo * DAY, end: t0 - daysAgo * DAY + 16 * HOUR });
+  const ledger = { presentAt: t0, gaps: [night(90), night(60), night(1)] };
+  expect(prune(ledger, t0 - 70 * DAY).gaps).toEqual([night(60), night(1)]);
+  expect(prune(ledger, t0 - 100 * DAY)).toBe(ledger);
 });
 
 test("time before install doesn't count, so installing never archives a backlog at once", () => {

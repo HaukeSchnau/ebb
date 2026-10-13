@@ -29,7 +29,7 @@ export type Verdict =
   | { kind: "keep"; idleMs: number; archivesInMs: number }
   | { kind: "archive"; idleMs: number };
 
-export type Assessment<T extends TabFacts> = { tab: T; id: number; firstSighting: boolean; verdict: Verdict };
+export type Assessment<T extends TabFacts> = { tab: T; id: number; seen: number; firstSighting: boolean; verdict: Verdict };
 
 const UNGROUPED = -1;
 const PLAUSIBLE_SINCE = Date.UTC(2020, 0, 1);
@@ -60,7 +60,9 @@ export function assess<T extends TabFacts & { id?: number | undefined }>(
   return tabs.flatMap((tab) => {
     if (tab.id === undefined) return [];
     const seen = seenAt(tab, ebbSaw[tab.id]);
-    return [{ tab, id: tab.id, firstSighting: seen === undefined, verdict: judge(tab, rules, now, gaps, seen ?? now) }];
+    const since = seen ?? now;
+    const verdict = judge(tab, rules, now, gaps, since);
+    return [{ tab, id: tab.id, seen: since, firstSighting: seen === undefined, verdict }];
   });
 }
 

@@ -1,6 +1,6 @@
 import { isRecordable, search, upsert, without, type Entry } from "./archive.ts";
 import { ago, xml } from "./format.ts";
-import { ledgerAtInstall, observe } from "./ledger.ts";
+import { ledgerAtInstall, observe, prune } from "./ledger.ts";
 import type { Message } from "./messages.ts";
 import { assess, hostOf, type Gap, type Rules } from "./rules.ts";
 import { currentRules, local, session } from "./storage.ts";
@@ -43,13 +43,14 @@ async function tick() {
   const now = Date.now();
   const present = (await chrome.idle.queryState(PRESENCE_SECONDS)) === "active";
   const { ledger } = await local.get("ledger");
-  const next = observe(ledger, now, present);
-  if (next !== ledger) await local.set({ ledger: next });
+  const observed = observe(ledger, now, present);
   const rules = await currentRules();
   if (!present && rules.clock === "present") return;
 
   const tabs = await chrome.tabs.query({ windowType: "normal" });
-  const assessed = await assessAndRemember(tabs, now, next.gaps, rules);
+  const assessed = await assessAndRemember(tabs, now, observed.gaps, rules);
+  const next = assessed.length > 0 ? prune(observed, Math.min(...assessed.map((a) => a.seen))) : observed;
+  if (next !== ledger) await local.set({ ledger: next });
   await archiveTabs(
     assessed.flatMap(({ tab, id, verdict }) => (verdict.kind === "archive" ? [{ tab, id, idleMs: verdict.idleMs }] : [])),
     now,
