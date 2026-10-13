@@ -25,3 +25,9 @@ test("a kept tab follows its own navigation", () => {
   const kept = keep([], { id: 4, url: "https://a.dev/" });
   expect(follow(kept, { id: 4, url: "https://a.dev/next" }, now)).toEqual([{ url: "https://a.dev/next", id: 4 }]);
 });
+
+test("follow returns the same list when nothing changes, so the caller writes nothing", () => {
+  const kept = keep([], { id: 4, url: "https://a.dev/" });
+  expect(follow(kept, { id: 4, url: "https://a.dev/" }, now)).toBe(kept);
+  expect(follow(kept, { id: 9, url: "https://b.dev/" }, now)).toBe(kept);
+});

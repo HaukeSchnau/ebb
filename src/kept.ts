@@ -32,13 +32,15 @@ export function rematch(kept: readonly KeptTab[], tabs: readonly Tab[], now: num
 
 /**
  * A tab's URL changed or it appeared. A kept tab follows its own navigation, and a waiting one
- * claims the first tab with its URL. Waits older than a day end.
+ * claims the first tab with its URL. Waits older than a day end. Returns `kept` itself when
+ * nothing changed, so callers can skip the write.
  */
-export function follow(kept: readonly KeptTab[], tab: Tab, now: number): KeptTab[] {
+export function follow(kept: KeptTab[], tab: Tab, now: number): KeptTab[] {
   const alive = kept.filter((k) => k.lostAt === undefined || k.lostAt > now - WAIT);
+  const unchanged = alive.length === kept.length;
   const mine = alive.findIndex((k) => k.id === tab.id);
-  if (mine >= 0) return alive.with(mine, { url: tab.url, id: tab.id });
+  if (mine >= 0) return unchanged && alive[mine]!.url === tab.url ? kept : alive.with(mine, { url: tab.url, id: tab.id });
   const waiting = alive.findIndex((k) => k.id === undefined && k.url === tab.url);
   if (waiting >= 0) return alive.with(waiting, { url: tab.url, id: tab.id });
-  return alive;
+  return unchanged ? kept : alive;
 }
