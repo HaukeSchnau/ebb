@@ -62,6 +62,12 @@ bun run zip     # dist/ and ebb.zip for the Chrome Web Store (needs zip)
 
 Plain `tsc` and no bundler, since MV3 service workers load ES modules directly. The rules in `src/rules.ts` and the ledger in `src/ledger.ts` are pure functions. `src/background.ts` owns every storage write.
 
+## Release
+
+Bump `version` in `static/manifest.json` and push to `main`. [Kiln](https://git.schnau.dev/schnau/kiln) runs `bun run qa`, then `scripts/release.ts` uploads that exact zip to the Chrome Web Store and submits it for review, publishing automatically once approved. A push whose version the store already has does nothing, and a newer version replaces one still waiting in review.
+
+To see what a release would do: `GOOGLE_SERVICE_ACCOUNT=key.json bun run release --dry-run`.
+
 ## License
 
 [MIT](LICENSE)
