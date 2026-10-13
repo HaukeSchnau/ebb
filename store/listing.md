@@ -57,7 +57,8 @@ Ebb automatically closes browser tabs the user hasn't looked at for a configurab
 | idle | Detects when the user is away or the screen is locked, so that time doesn't count toward a tab's age. |
 | sessions | Reopens an archived tab with its back/forward history from the browser's recently closed list. |
 | sidePanel | Shows the archive, search, and settings in the side panel. |
-| storage | Stores the archive, the away periods, and the settings on the user's device. |
+| contextMenus | Adds "Keep this tab" and "Never archive <site>" to the right-click menu of a page, so the user can protect a tab or a whole site from being archived. |
+| storage | Stores on the user's device: the archive, which archived tabs were opened again in the last 30 days (to suggest a better threshold), the away periods, the tabs the user chose to keep, and the settings. |
 | favicon | Shows site icons next to archived tabs from the browser's local icon cache, without network requests. |
 
 **Remote code:** No, I am not using remote code.

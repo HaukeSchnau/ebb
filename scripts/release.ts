@@ -111,7 +111,13 @@ async function api<T = unknown>(method: "GET" | "POST", path: string, body?: Blo
     ...(body === undefined ? {} : { body }),
   });
   const text = await response.text();
-  if (!response.ok) fail(`${method} ${path} failed: ${response.status} ${text}`);
+  if (!response.ok) {
+    // The store says only "does not meet the requirements"; so far that has always meant a dashboard field.
+    const hint = text.includes("INVALID_ITEM_METADATA")
+      ? "\nThe listing is incomplete. Usually a new permission needs a justification on the dashboard's Privacy tab (store/listing.md has the text); the upload is in place, so rerun this after saving it."
+      : "";
+    fail(`${method} ${path} failed: ${response.status} ${text}${hint}`);
+  }
   return (text ? JSON.parse(text) : {}) as T;
 }
 
