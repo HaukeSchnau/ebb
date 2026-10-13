@@ -7,7 +7,7 @@ const shell = flake.devShells.ci
 const install = Bun.install({ shell })
 
 /** Types, tests and the package the store gets, with its manifest so the release knows the version. */
-export const qa = Task.make("qa", {
+const qa = Task.make("qa", {
   shell,
   setup: install,
   run: cmd`bun run qa`,
@@ -18,7 +18,7 @@ export const qa = Task.make("qa", {
  * Submits that exact zip when its manifest names a version the store doesn't have yet, so bumping
  * the version and pushing is the release. Every other push ends as `Unchanged`.
  */
-export const release = Action.make("release", {
+const release = Action.make("release", {
   needs: { zip: qa.outputs.zip, manifest: qa.outputs.manifest },
   grants: { secrets: ["chrome-web-store"] },
 }, function*(files) {
