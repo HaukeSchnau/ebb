@@ -7,8 +7,7 @@
     "check": "tsc -p tsconfig.json",
     "test": "bun test",
     "zip": "rm -f ebb.zip && bun run build && cd dist && zip -qr ../ebb.zip .",
-    "qa": "bun run check && bun test && bun run zip",
-    "release": "bun scripts/release.ts ebb.zip"
+    "qa": "bun run check && bun test && bun run zip"
   },
   "devDependencies": {
     "@types/bun": "^1.4.2",

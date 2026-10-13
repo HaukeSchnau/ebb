@@ -64,9 +64,7 @@ Plain `tsc` and no bundler, since MV3 service workers load ES modules directly. 
 
 ## Release
 
-Bump `version` in `static/manifest.json` and push to `main`. [Kiln](https://git.schnau.dev/schnau/kiln) runs `bun run qa`, then `scripts/release.ts` uploads that exact zip to the Chrome Web Store and submits it for review, publishing automatically once approved. A push whose version the store already has does nothing, and a newer version replaces one still waiting in review.
-
-To see what a release would do: `GOOGLE_SERVICE_ACCOUNT=key.json bun run release --dry-run`.
+Bump `version` in `static/manifest.json` and push to `main`. [Kiln](https://git.schnau.dev/schnau/kiln) runs `bun run qa`, then the `release` action in `.kiln/` uploads that exact zip to the Chrome Web Store and submits it for review, publishing automatically once approved. A push whose version the store already has ends as `Unchanged`, and a newer version replaces one still waiting in review. `.kiln/decide.ts` holds that decision and `test/release.test.ts` covers it.
 
 ## License
 
