@@ -21,7 +21,7 @@ Ebb closes tabs you've stopped looking at and keeps them in an archive you can s
 
 ## Install
 
-[Chrome Web Store](https://chromewebstore.google.com/detail/jifmboaehilnoobbnfffolkhioeknlne). Version 0.2.0 was submitted for review on 9 October 2026, and the link works once Google approves it.
+Install Ebb from the [Chrome Web Store](https://chromewebstore.google.com/detail/ebb-auto-archive-old-tabs/jifmboaehilnoobbnfffolkhioeknlne). It works in Helium too.
 
 From source:
 
