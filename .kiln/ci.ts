@@ -11,19 +11,20 @@ const build = Task.make("build", {
   shell,
   setup: install,
   run: cmd`bun run zip`,
-  inputs: Files.glob("src/**", "static/**", "tsconfig.json", "tsconfig.build.json", "package.json", "bun.lock"),
+  inputs: Files.glob("src/**", "static/**", "tsconfig.json", "tsconfig.build.json"),
   outputs: { dist: "dist", zip: "ebb.zip" },
 })
 
 /** Types and unit tests. */
 const qa = Task.make("qa", { shell, setup: install, run: cmd`bun run qa` })
 
-/** That exact build in Chromium. */
+/** That exact build in Chromium. Its screenshots stay downloadable from the run, also when a check fails. */
 const e2e = Task.make("e2e", {
   shell: flake.devShells.e2e,
   setup: install,
   run: cmd`bun e2e/extension.ts ${build.outputs.dist} e2e/out`,
-  inputs: Files.of("e2e/extension.ts", "package.json", "bun.lock"),
+  inputs: Files.of("e2e/extension.ts"),
+  outputs: { screenshots: "e2e/out" },
 })
 
 /**
