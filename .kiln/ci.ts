@@ -18,13 +18,12 @@ const build = Task.make("build", {
 /** Types and unit tests. */
 const qa = Task.make("qa", { shell, setup: install, run: cmd`bun run qa` })
 
-/** That exact build in Chromium. Its output is screenshots of the welcome page and the panel. */
+/** That exact build in Chromium. */
 const e2e = Task.make("e2e", {
   shell: flake.devShells.e2e,
   setup: install,
   run: cmd`bun e2e/extension.ts ${build.outputs.dist} e2e/out`,
   inputs: Files.of("e2e/extension.ts", "package.json", "bun.lock"),
-  outputs: { screenshots: "e2e/out" },
 })
 
 /**
