@@ -4,7 +4,7 @@
   "short_name": "Ebb",
   "version": "0.4.1",
   "description": "Closes tabs you haven't looked at in a while and keeps them in a searchable archive, so you can reopen any of them later.",
-  "homepage_url": "https://github.com/HaukeSchnau/ebb",
+  "homepage_url": "https://ebb.schnau.dev",
   "minimum_chrome_version": "121",
   "icons": {
     "16": "icons/16.png",

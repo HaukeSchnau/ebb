@@ -8,11 +8,17 @@
     "test": "bun test",
     "zip": "rm -f ebb.zip && bun run build && cd dist && zip -qr ../ebb.zip .",
     "qa": "bun run check && bun test",
-    "e2e": "bun run zip && bun e2e/extension.ts dist e2e/out"
+    "e2e": "bun run zip && bun e2e/extension.ts dist e2e/out",
+    "site": "bun site/build.ts"
   },
   "devDependencies": {
+    "@effect/platform-bun": "4.0.5",
+    "@effect/platform-node": "4.0.5",
+    "@fontsource-variable/instrument-sans": "5.3.0",
     "@types/bun": "^1.4.2",
     "@types/chrome": "^0.3.4",
+    "alchemy": "2.0.0-beta.83",
+    "effect": "4.0.5",
     "puppeteer-core": "^25.13.0",
     "typescript": "^7.0.2"
   }

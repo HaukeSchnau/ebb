@@ -12,5 +12,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src", "test", "e2e"]
+  "include": ["src", "test", "e2e", "site", "alchemy.run.ts"]
 }

@@ -36,7 +36,7 @@ Open source under the MIT license: https://github.com/HaukeSchnau/ebb
 
 **Graphics:** `store/promo-small.png` (440×280), `store/promo-marquee.png` (1400×560), and `store/screenshot-1.png` through `store/screenshot-4.png` (1280×800).
 
-**Homepage URL:** https://github.com/HaukeSchnau/ebb
+**Homepage URL:** https://ebb.schnau.dev
 
 **Support URL:** https://github.com/HaukeSchnau/ebb/issues
 
@@ -70,7 +70,7 @@ Ebb automatically closes browser tabs the user hasn't looked at for a configurab
 
 Then certify all three statements: data isn't sold to third parties, isn't used for purposes unrelated to the single purpose, and isn't used for creditworthiness or lending.
 
-**Privacy policy URL:** https://github.com/HaukeSchnau/ebb/blob/main/PRIVACY.md
+**Privacy policy URL:** https://ebb.schnau.dev/privacy/
 
 ## Distribution
 

@@ -62,6 +62,14 @@ nix develop .#e2e -c bun run e2e   # the build in Chromium, screenshots in e2e/o
 
 Plain `tsc` and no bundler, since MV3 service workers load ES modules directly. The rules in `src/rules.ts` and the ledger in `src/ledger.ts` are pure functions. `src/background.ts` owns every storage write.
 
+## Website
+
+`site/` is [ebb.schnau.dev](https://ebb.schnau.dev). `bun run site` builds it into `dist-site/`, with the privacy policy rendered from `PRIVACY.md` and a demo that runs Ebb's own search from `src/archive.ts`. `alchemy.run.ts` serves it from Cloudflare. Kiln deploys it on every push to `main` once `qa` passes, and gives each pull request from a branch of this repository a preview at `https://pr-<number>-ebb.hauke-911.workers.dev`. Deploys read a dotenv file with `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, which Kiln has as the project's `cloudflare` secret. By hand:
+
+```sh
+bun alchemy deploy --stage prod --env-file <that file>
+```
+
 ## Release
 
 Bump `version` in `static/manifest.json` and push to `main`. [Kiln](https://git.schnau.dev/schnau/kiln) builds the extension once, checks types and unit tests (`qa`) and loads that build in Chromium (`e2e`). When both pass, the `release` action uploads the build's zip to the Chrome Web Store and submits it for review, publishing automatically once approved. A push whose version the store already has ends as `Unchanged`, and a newer version replaces one still waiting in review. `.kiln/decide.ts` holds that decision and `test/release.test.ts` covers it.

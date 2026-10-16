@@ -1,5 +1,5 @@
 import { Action, Files, Kiln, On, Task, cmd } from "@kiln/core"
-import { Bun } from "@kiln/std"
+import { Alchemy, Bun } from "@kiln/std"
 import { flake } from "./flake.ts"
 import * as WebStore from "./WebStore.ts"
 
@@ -42,4 +42,14 @@ const release = Action.make("release", {
   )
 })
 
-export default Kiln.project({ rules: [On.pullRequest([qa, e2e]), On.push("main", [release])] })
+/** The website (alchemy.run.ts). It only needs qa to deploy; the extension's browser test gates the release. */
+const website = { shell, setup: install, runner: "bun", env: "cloudflare" } satisfies Alchemy.Stack
+
+export default Kiln.project({
+  rules: [
+    On.pullRequest([qa, e2e]),
+    On.preview(Alchemy.preview(website, { url: (pr) => `https://pr-${pr}-ebb.hauke-911.workers.dev`, after: [qa] })),
+    On.pullRequestClosed([Alchemy.destroy(website)]),
+    On.push("main", [release, Alchemy.deploy(website, { stage: "prod", after: [qa] })]),
+  ],
+})

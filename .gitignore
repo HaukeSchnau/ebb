@@ -2,3 +2,5 @@ node_modules/
 dist/
 ebb.zip
 e2e/out/
+dist-site/
+.alchemy/
