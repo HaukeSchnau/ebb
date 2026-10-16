@@ -49,7 +49,10 @@ const layout = (page: Page) => `<!doctype html>
 ${page.main.trim()}
 </main>
 <footer class="foot">
-  <p>Ebb is free, open source under the MIT license, and published by Urbs UG (haftungsbeschränkt) in Hamburg.</p>
+  <div>
+    <p class="credit"><a href="https://schnau.dev/" lang="de">Eine Hauke Schnau Produktion</a></p>
+    <p>Ebb is free, open source under the MIT license, and published by Urbs UG (haftungsbeschränkt) in Hamburg.</p>
+  </div>
   <nav aria-label="Legal">
     <a href="${store}">Chrome Web Store</a>
     <a href="/privacy/">Privacy</a>
