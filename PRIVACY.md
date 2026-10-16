@@ -30,6 +30,8 @@ Hover an archive entry and press × to remove it. Uninstalling Ebb deletes every
 
 The website sets no cookies, has no analytics, and loads nothing from other servers, not even fonts. Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, USA, delivers it for us. Each request reaches Cloudflare with your IP address, the time, the page, and what your browser sends along, such as its name and language. Cloudflare uses this data to deliver the site and protect it against attacks, on our behalf and under its data processing agreement. We rely on our interest in a site that works and stays secure (Art. 6(1)(f) GDPR). We keep no access log ourselves.
 
+The home page opens in German when your browser prefers German. If you pick a language at the top, your browser remembers that choice in its local storage. It never reaches us.
+
 Cloudflare may process this data in the United States. For such transfers it relies on its certification under the EU-U.S. Data Privacy Framework, for which the European Commission has adopted an adequacy decision.
 
 ## Email
@@ -44,4 +46,4 @@ You can also complain to a data protection authority. Ours is the Hamburg Commis
 
 ## Changes
 
-Changes to this policy are published in PRIVACY.md in [Ebb's repository](https://github.com/HaukeSchnau/ebb/blob/main/PRIVACY.md), whose history shows every earlier version.
+Changes to this policy are published in PRIVACY.md and its German version PRIVACY.de.md in [Ebb's repository](https://github.com/HaukeSchnau/ebb), whose history shows every earlier version.

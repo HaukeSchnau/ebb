@@ -64,7 +64,7 @@ Plain `tsc` and no bundler, since MV3 service workers load ES modules directly. 
 
 ## Website
 
-`site/` is [ebb.schnau.dev](https://ebb.schnau.dev). `bun run site` builds it into `dist-site/`, with the privacy policy rendered from `PRIVACY.md` and a demo that runs Ebb's own search from `src/archive.ts`. `alchemy.run.ts` serves it from Cloudflare. Kiln deploys it on every push to `main` once `qa` passes, and gives each pull request from a branch of this repository a preview at `https://pr-<number>-ebb.hauke-911.workers.dev`. Deploys read a dotenv file with `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, which Kiln has as the project's `cloudflare` secret. By hand:
+`site/` is [ebb.schnau.dev](https://ebb.schnau.dev), in English and, under `/de/`, German. `bun run site` builds it into `dist-site/`, with the privacy policy rendered from `PRIVACY.md` and `PRIVACY.de.md` and a demo that runs Ebb's own search from `src/archive.ts`. `site/site.ts` lists every page's URL in both languages; a German browser landing on `/` goes to `/de/` unless the visitor picked a language. `alchemy.run.ts` serves it from Cloudflare. Kiln deploys it on every push to `main` once `qa` passes, and gives each pull request from a branch of this repository a preview at `https://pr-<number>-ebb.hauke-911.workers.dev`. Deploys read a dotenv file with `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, which Kiln has as the project's `cloudflare` secret. By hand:
 
 ```sh
 bun alchemy deploy --stage prod --env-file <that file>
