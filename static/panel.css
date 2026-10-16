@@ -12,7 +12,7 @@ body { margin: 0; background: var(--bg); color: var(--ink); min-height: 100vh; d
 header { position: sticky; top: 0; background: var(--bg); padding: 12px 12px 8px; border-bottom: 1px solid var(--line); z-index: 1; }
 .bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 h1 { font-size: 15px; margin: 0; }
-h1 span { color: var(--muted); font-weight: 400; font-size: 12px; margin-left: 4px; }
+h1 #count { color: var(--muted); font-weight: 400; font-size: 12px; margin-left: 4px; }
 button { font: inherit; font-size: 12px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 7px; padding: 3px 9px; cursor: pointer; }
 button:hover { border-color: var(--accent); }
 button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }

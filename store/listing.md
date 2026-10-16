@@ -34,6 +34,30 @@ Ebb has no server and makes no network requests. The archive stays on your devic
 Open source under the MIT license: https://github.com/HaukeSchnau/ebb
 ```
 
+**Description in German** (add German as a listing language; the name and summary come from `static/_locales/de`):
+
+```
+Zu viele Tabs? Ebb schließt die, die du nicht mehr ansiehst, und bewahrt sie in einem Archiv auf, das du durchsuchen kannst, so wie das Auto-Archiv von Arc.
+
+SO ENTSCHEIDET EBB
+• Ein Tab beginnt zu altern, wenn du ihn verlässt.
+• Es zählt nur die Zeit am Computer. Eine Nacht mit zugeklapptem Laptop oder ein Wochenende weg leeren deine Tableiste nicht.
+• Nach 12 Stunden schließt Ebb den Tab und legt ihn ins Archiv. Du kannst stattdessen 3 Stunden, 1 Tag, 7 Tage oder 30 Tage wählen.
+• Angeheftete Tabs, Tabs in Gruppen, Tabs, die Audio abspielen, und der Tab, auf dem du bist, werden nie archiviert.
+• Die Installation schließt nichts sofort. Tabs altern erst ab der Installation.
+
+TABS ZURÜCKHOLEN
+• Klick auf das Symbol in der Symbolleiste, um das Archiv in der Seitenleiste zu öffnen. Tipp, um zu suchen, und drück Enter, um einen Tab wieder zu öffnen.
+• Oder tipp „ebb“ und ein Leerzeichen in die Adressleiste und such dort.
+• Wieder geöffnete Tabs bekommen ihren Verlauf für Zurück und Vorwärts zurück, solange der Browser ihn noch kennt.
+• „Fenster leeren“ archiviert alle ungeschützten Tabs im Fenster auf einmal.
+
+PRIVAT VON GRUND AUF
+Ebb hat keinen Server und stellt keine Netzwerkanfragen. Das Archiv bleibt auf deinem Gerät. Ebb kann keine Seiteninhalte lesen, nur Titel und Adressen von Tabs.
+
+Open Source unter der MIT-Lizenz: https://github.com/HaukeSchnau/ebb
+```
+
 **Graphics:** `store/promo-small.png` (440×280), `store/promo-marquee.png` (1400×560), and `store/screenshot-1.png` through `store/screenshot-4.png` (1280×800).
 
 **Homepage URL:** https://ebb.schnau.dev

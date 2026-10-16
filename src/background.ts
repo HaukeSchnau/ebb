@@ -1,8 +1,9 @@
 import { isRecordable, search, upsert, without, type Entry, type Via } from "./archive.ts";
-import { ago, xml } from "./format.ts";
+import { xml } from "./format.ts";
 import { follow, keep, keptIds, rematch, release } from "./kept.ts";
 import { remember, returned, type Archived, type Suggestion } from "./learn.ts";
 import { ledgerAtInstall, observe, prune } from "./ledger.ts";
+import { t } from "./locale.ts";
 import type { Cleared, Reply, Request } from "./messages.ts";
 import { DAY, assess, hostOf, siteOf, type Gap, type Rules } from "./rules.ts";
 import { currentRules, local, session, settings } from "./storage.ts";
@@ -239,8 +240,8 @@ const MENU = { tab: "keep-tab", site: "keep-site" } as const;
 function createMenus() {
   void chrome.contextMenus.removeAll().then(() => {
     const contexts: [`${chrome.contextMenus.ContextType}`, ...`${chrome.contextMenus.ContextType}`[]] = ["page", "action"];
-    chrome.contextMenus.create({ id: MENU.tab, title: "Keep this tab", type: "checkbox", contexts });
-    chrome.contextMenus.create({ id: MENU.site, title: "Never archive this site", type: "checkbox", contexts });
+    chrome.contextMenus.create({ id: MENU.tab, title: t.keepTab, type: "checkbox", contexts });
+    chrome.contextMenus.create({ id: MENU.site, title: t.neverArchiveThisSite, type: "checkbox", contexts });
     refreshMenus();
   });
 }
@@ -259,7 +260,7 @@ function refreshMenus() {
     await Promise.all([
       chrome.contextMenus.update(MENU.tab, { checked: tabKept, enabled: tab?.id !== undefined }),
       chrome.contextMenus.update(MENU.site, {
-        title: site ? `Never archive ${site}` : "Never archive this site",
+        title: site ? t.neverArchive(site) : t.neverArchiveThisSite,
         checked: site !== "" && keptSites.includes(site),
         enabled: site !== "",
       }),
@@ -344,7 +345,7 @@ chrome.commands.onCommand.addListener((command, tab) => {
 
 // ---------------------------------------------------------------- address bar
 
-void chrome.omnibox.setDefaultSuggestion({ description: "Search tabs Ebb archived" });
+void chrome.omnibox.setDefaultSuggestion({ description: t.searchArchived });
 
 chrome.omnibox.onInputChanged.addListener((text, suggest) => {
   void local.get("archive").then(({ archive }) => {
@@ -354,7 +355,7 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
         .slice(0, 8)
         .map((entry) => ({
           content: entry.url,
-          description: `${xml(entry.title)} <dim>${xml(hostOf(entry.url))} · ${ago(entry.archivedAt, now)}</dim>`,
+          description: `${xml(entry.title)} <dim>${xml(hostOf(entry.url))} · ${xml(t.ago(entry.archivedAt, now))}</dim>`,
         })),
     );
   });

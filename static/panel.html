@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,37 +9,37 @@
 <body>
   <header>
     <div class="bar">
-      <h1>Archive <span id="count"></span></h1>
-      <button id="clear" title="Archive every unprotected tab in this window">Clear window</button>
+      <h1><span data-text="archive"></span> <span id="count"></span></h1>
+      <button id="clear" data-text="clearWindow" data-title="clearWindowTitle"></button>
     </div>
-    <input id="search" type="search" placeholder="Search archived tabs" autocomplete="off" autofocus
+    <input id="search" type="search" data-placeholder="search" data-label="search" autocomplete="off" autofocus
       aria-describedby="keys" aria-controls="list">
     <div id="sites" class="sites"></div>
-    <p id="keys" class="keys">↑ ↓ to pick · Enter reopens · Shift+Delete forgets</p>
+    <p id="keys" class="keys" data-text="keys"></p>
   </header>
   <div id="undo" class="undo" role="status" hidden></div>
   <div id="suggestions"></div>
-  <main id="list" role="listbox" aria-label="Archived tabs"></main>
+  <main id="list" role="listbox" data-label="archivedTabs"></main>
   <p id="empty" hidden></p>
   <footer>
     <details>
-      <summary id="next-summary">Next to go</summary>
+      <summary id="next-summary" data-text="nextToGo"></summary>
       <ol id="next-list"></ol>
     </details>
     <details>
-      <summary id="kept-summary">Kept</summary>
+      <summary id="kept-summary" data-text="kept"></summary>
       <div id="kept-body" class="kept"></div>
     </details>
     <details>
-      <summary>Clock</summary>
+      <summary data-text="clock"></summary>
       <div id="clock-body"></div>
     </details>
     <details>
-      <summary>Settings</summary>
+      <summary data-text="settings"></summary>
       <div id="settings">
-        <label>Archive tabs after <select id="threshold"></select></label>
-        <label><input type="checkbox" id="protect-groups"> Never archive tabs in groups</label>
-        <p>Only time at the computer counts. Pinned tabs, tabs playing audio, and the tab you're on are never archived. Right-click a page to keep it or its whole site.</p>
+        <label><span data-text="archiveAfter"></span> <select id="threshold"></select></label>
+        <label><input type="checkbox" id="protect-groups"> <span data-text="protectGroups"></span></label>
+        <p data-text="settingsNote"></p>
       </div>
     </details>
   </footer>

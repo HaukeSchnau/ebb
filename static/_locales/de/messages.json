@@ -1,0 +1,14 @@
+{
+  "name": {
+    "message": "Ebb: Alte Tabs automatisch archivieren"
+  },
+  "description": {
+    "message": "Schließt Tabs, die du länger nicht angesehen hast, und legt sie in ein durchsuchbares Archiv, aus dem du sie wieder öffnen kannst."
+  },
+  "openArchive": {
+    "message": "Archiv öffnen"
+  },
+  "clearWindow": {
+    "message": "Jeden ungeschützten Tab in diesem Fenster archivieren"
+  }
+}

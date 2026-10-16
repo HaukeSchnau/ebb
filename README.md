@@ -11,6 +11,7 @@ Ebb closes tabs you've stopped looking at and keeps them in an archive you can s
 - Pinned tabs, tabs in a group, tabs playing audio, both panes of a split view you're looking at, and the active tab in each window are never archived. Group protection can be turned off.
 - Right-click any page to keep that tab, or to never archive its site. Kept tabs stay kept across browser restarts.
 - Installing Ebb doesn't archive your backlog. Tab ages start counting at install.
+- Ebb speaks English and German, following the browser's language.
 
 ## Getting tabs back
 
@@ -60,7 +61,7 @@ bun run zip     # dist/ and ebb.zip for the Chrome Web Store (needs zip)
 nix develop .#e2e -c bun run e2e   # the build in Chromium, screenshots in e2e/out
 ```
 
-Plain `tsc` and no bundler, since MV3 service workers load ES modules directly. The rules in `src/rules.ts` and the ledger in `src/ledger.ts` are pure functions. `src/background.ts` owns every storage write.
+Plain `tsc` and no bundler, since MV3 service workers load ES modules directly. Every word the extension shows lives in `src/text.ts`, in English and German, and the manifest's in `static/_locales`. The rules in `src/rules.ts` and the ledger in `src/ledger.ts` are pure functions. `src/background.ts` owns every storage write.
 
 ## Website
 

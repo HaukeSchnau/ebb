@@ -1,0 +1,14 @@
+{
+  "name": {
+    "message": "Ebb: Auto-Archive Old Tabs"
+  },
+  "description": {
+    "message": "Closes tabs you haven't looked at in a while and keeps them in a searchable archive, so you can reopen any of them later."
+  },
+  "openArchive": {
+    "message": "Open the archive"
+  },
+  "clearWindow": {
+    "message": "Archive every unprotected tab in this window"
+  }
+}

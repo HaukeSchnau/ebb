@@ -1,40 +1,40 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Welcome to Ebb</title>
+  <title data-text="welcomeTitle">Ebb</title>
   <link rel="icon" href="icons/32.png">
   <link rel="stylesheet" href="welcome.css">
 </head>
 <body>
   <main>
     <div class="glyph" aria-hidden="true"><i></i><i></i><i></i></div>
-    <h1>Ebb is on.</h1>
-    <p class="lede">Ebb closes tabs you've stopped looking at and keeps them in an archive you can search.</p>
+    <h1 data-text="welcomeOn"></h1>
+    <p class="lede" data-text="welcomeLede"></p>
 
     <ol class="steps">
-      <li><p><b>A tab starts aging when you leave it.</b> Only time at the computer counts, so nights and weekends away don't.</p></li>
-      <li><p><b>Some tabs never go.</b> Pinned tabs, tabs in a group, tabs playing audio, and the tab you're on. Right-click any page to keep that tab or its whole site.</p></li>
-      <li><p><b>Archived tabs are one search away.</b> Click Ebb's toolbar icon, or type <kbd>ebb</kbd> and a space in the address bar.</p></li>
+      <li><p data-html="welcomeAging"></p></li>
+      <li><p data-html="welcomeProtected"></p></li>
+      <li><p data-html="welcomeSearch"></p></li>
     </ol>
 
     <section>
-      <h2>Archive tabs after</h2>
-      <div class="choices" id="thresholds" role="radiogroup" aria-label="Archive tabs after"></div>
-      <p class="hint">You can change this later in the archive's settings. If Ebb notices you bringing back a lot of tabs, it will suggest a longer time.</p>
+      <h2 data-text="archiveAfter"></h2>
+      <div class="choices" id="thresholds" role="radiogroup" data-label="archiveAfter"></div>
+      <p class="hint" data-text="welcomeThresholdHint"></p>
     </section>
 
     <section class="try">
-      <h2>Try it</h2>
-      <p>Archive every tab in this window except this one and the protected ones. One click brings them all back.</p>
+      <h2 data-text="tryIt"></h2>
+      <p data-text="tryText"></p>
       <div class="buttons" id="try">
-        <button class="primary" id="clear">Archive this window's other tabs</button>
+        <button class="primary" id="clear" data-text="tryButton"></button>
       </div>
       <p class="result" id="result" role="status"></p>
     </section>
 
-    <p class="fine">Ebb can't read what's on your pages and has no server. Everything stays in your browser. <a href="https://github.com/HaukeSchnau/ebb" target="_blank" rel="noopener">Source code</a></p>
+    <p class="fine" data-html="welcomeFine"></p>
   </main>
   <script type="module" src="welcome.js"></script>
 </body>

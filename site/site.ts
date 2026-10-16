@@ -1,5 +1,7 @@
-export const locales = ["en", "de"] as const
-export type Locale = (typeof locales)[number]
+import type { Locale } from "../src/text.ts"
+
+export type { Locale }
+export const locales = ["en", "de"] as const satisfies readonly Locale[]
 export type Localized<T = string> = { readonly [L in Locale]: T }
 
 /** Every page in both languages. The store listing links the English privacy URL, so it must stay. */

@@ -16,8 +16,8 @@ export const home = (locale: Locale) => {
     <p class="get">
       ${cta}
       <span>${t({
-        en: `Free. Works in Chrome, <a href="https://helium.computer">Helium</a> and other Chromium browsers.`,
-        de: `Kostenlos. Läuft in Chrome, <a href="https://helium.computer">Helium</a> und anderen Chromium-Browsern. Ebb selbst ist auf Englisch.`,
+        en: `Free, in English and German. Works in Chrome, <a href="https://helium.computer">Helium</a> and other Chromium browsers.`,
+        de: `Kostenlos, auf Deutsch und Englisch. Läuft in Chrome, <a href="https://helium.computer">Helium</a> und anderen Chromium-Browsern.`,
       })}</span>
     </p>
   </div>
@@ -81,7 +81,7 @@ export const home = (locale: Locale) => {
       })}</p>
       <p>${t({
         en: "Clear window archives every unprotected tab in the window at once, with ten seconds to undo. Tabs archived together come back together with Reopen all.",
-        de: "Clear window archiviert alle ungeschützten Tabs im Fenster auf einmal, und du hast zehn Sekunden, um das rückgängig zu machen. Was zusammen ins Archiv ging, kommt mit Reopen all zusammen zurück.",
+        de: "„Fenster leeren“ archiviert alle ungeschützten Tabs im Fenster auf einmal, und du hast zehn Sekunden, um das rückgängig zu machen. Was zusammen ins Archiv ging, kommt mit „Alle wieder öffnen“ zusammen zurück.",
       })}</p>
     </div>
   </section>

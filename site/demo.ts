@@ -1,8 +1,8 @@
 // The hero's demo: a window of tabs aging under Ebb's default rule, and an archive searched with
 // Ebb's own search, in the page's language. Time here is made up; the buttons move it forward.
 import { search, type Entry } from "../src/archive.ts"
-import { ago, duration } from "../src/format.ts"
 import { DAY, HOUR, MINUTE, RULES, siteOf } from "../src/rules.ts"
+import { texts } from "../src/text.ts"
 import { element, h } from "../src/ui.ts"
 import type { Locale, Localized } from "./site.ts"
 
@@ -12,6 +12,8 @@ type Tab = Site & ({ kind: "aging"; age: number } | { kind: "kept"; why: Why })
 
 const locale: Locale = document.documentElement.lang === "de" ? "de" : "en"
 const local = <T>(value: Localized<T>): T => value[locale]
+/** Ebb's own wording for times, as its panel shows them. */
+const time = texts[locale]
 
 const copy = local<{
   why: Record<Why, string>
@@ -26,8 +28,6 @@ const copy = local<{
   allArchived: string
   slept: string
   reopened: (title: string) => string
-  duration: (ms: number) => string
-  ago: (then: number, now: number) => string
 }>({
   en: {
     why: { pinned: "Pinned", audible: "Playing audio" },
@@ -42,8 +42,6 @@ const copy = local<{
     allArchived: "Every tab you left is in the archive. The pinned and playing tabs stay.",
     slept: "8 hours away. No tab got older.",
     reopened: (title) => `${title} is open again and starts aging when you leave it.`,
-    duration,
-    ago,
   },
   de: {
     why: { pinned: "Angeheftet", audible: "Spielt Audio" },
@@ -58,21 +56,6 @@ const copy = local<{
     allArchived: "Jeder Tab, den du verlassen hast, ist im Archiv. Die angehefteten und spielenden Tabs bleiben.",
     slept: "8 Stunden weg. Kein Tab ist älter geworden.",
     reopened: (title) => `${title} ist wieder offen und altert erst, wenn du den Tab verlässt.`,
-    duration: (ms) => {
-      const minutes = Math.max(0, Math.round(ms / MINUTE))
-      const hours = Math.floor(minutes / 60)
-      if (hours === 0) return `${minutes} Min.`
-      if (hours < 24) return `${hours} Std.${minutes % 60 > 0 ? ` ${minutes % 60} Min.` : ""}`
-      return `${Math.floor(hours / 24)} T. ${hours % 24} Std.`
-    },
-    ago: (then, now) => {
-      const ms = Math.max(0, now - then)
-      if (ms < MINUTE) return "gerade eben"
-      if (ms < HOUR) return `vor ${Math.floor(ms / MINUTE)} Min.`
-      if (ms < DAY) return `vor ${Math.floor(ms / HOUR)} Std.`
-      const days = Math.floor(ms / DAY)
-      return `vor ${days} ${days === 1 ? "Tag" : "Tagen"}`
-    },
   },
 })
 
@@ -150,7 +133,7 @@ let busy = false
 const rows = new Map<string, HTMLLIElement>()
 /** Each shown archive entry's site-and-age line, so time can move without rebuilding the list. */
 const metas = new Map<HTMLSpanElement, Entry>()
-const meta = (entry: Entry) => `${siteOf(entry.url)} · ${copy.ago(entry.archivedAt, now)}`
+const meta = (entry: Entry) => `${siteOf(entry.url)} · ${time.ago(entry.archivedAt, now)}`
 
 function mark(url: string) {
   const [letter, color] = MARKS[siteOf(url)] ?? ["•", "#6d6a63"]
@@ -170,7 +153,7 @@ function paint(tab: Tab, row: HTMLLIElement) {
   const life = tab.kind === "kept" ? 1 : Math.max(0, 1 - tab.age / THRESHOLD)
   row.style.setProperty("--life", life.toFixed(3))
   const age = row.querySelector(".age")
-  if (age) age.textContent = tab.kind === "kept" ? copy.why[tab.why] : copy.duration(tab.age)
+  if (age) age.textContent = tab.kind === "kept" ? copy.why[tab.why] : time.duration(tab.age)
 }
 
 /** Kept tabs first, then the youngest, so the bars shorten down the list. */
@@ -184,7 +167,7 @@ function renderTabs() {
   }))
   clock.textContent = atComputer + away === 0
     ? copy.idle
-    : copy.spent(copy.duration(atComputer), away > 0 ? copy.duration(away) : undefined)
+    : copy.spent(time.duration(atComputer), away > 0 ? time.duration(away) : undefined)
   work.textContent = tabs.some((tab) => tab.kind === "aging") ? copy.work : copy.startOver
 }
 

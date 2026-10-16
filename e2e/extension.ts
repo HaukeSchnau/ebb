@@ -58,6 +58,8 @@ const launch = (dumpio: boolean) =>
     dumpio,
     enableExtensions: [dist],
     args: ["--no-sandbox", "--no-first-run", "--disable-dev-shm-usage", "--lang=en-US"],
+    // On Linux, Chromium's UI language, which picks Ebb's, follows the environment rather than --lang.
+    env: { ...process.env, LANG: "en_US.UTF-8", LANGUAGE: "en_US" },
     userDataDir: mkdtempSync(join(tmpdir(), "ebb-e2e-")),
   })
 // When Chromium dies at startup Puppeteer only says the pipe closed; a second try shows Chromium's own output.
