@@ -1,5 +1,5 @@
-import { Action, Files, Kiln, On, Task, cmd } from "@kiln/core"
-import { Alchemy, Bun } from "@kiln/std"
+import { Action, Files, Calder, On, Task, cmd } from "@calder-ci/core"
+import { Alchemy, Bun } from "@calder-ci/std"
 import { flake } from "./flake.ts"
 import * as WebStore from "./WebStore.ts"
 
@@ -45,7 +45,7 @@ const release = Action.make("release", {
 /** The website (alchemy.run.ts). It only needs qa to deploy; the extension's browser test gates the release. */
 const website = { shell, setup: install, runner: "bun", env: "cloudflare" } satisfies Alchemy.Stack
 
-export default Kiln.project({
+export default Calder.project({
   rules: [
     On.pullRequest([qa, e2e]),
     On.preview(Alchemy.preview(website, { url: (pr) => `https://pr-${pr}-ebb.hauke-911.workers.dev`, after: [qa] })),

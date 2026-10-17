@@ -1,6 +1,0 @@
-{
-  "extends": "@kiln/tsconfig",
-  "include": [
-    "*.ts"
-  ]
-}

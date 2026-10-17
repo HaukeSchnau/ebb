@@ -1,4 +1,4 @@
-import { Kiln, Secret } from "@kiln/core"
+import { Calder, Secret } from "@calder-ci/core"
 import { Effect, Redacted, Schema } from "effect"
 import { HttpClient, HttpClientRequest, HttpClientResponse } from "effect/http"
 import { createSign } from "node:crypto"
@@ -6,25 +6,25 @@ import { decide } from "./decide.ts"
 
 const API = "https://chromewebstore.googleapis.com"
 
-export class Submitted extends Kiln.Result<Submitted>("ebb/WebStore")("Submitted", {
+export class Submitted extends Calder.Result<Submitted>("ebb/WebStore")("Submitted", {
   version: Schema.String,
   /** The older version this one took out of review, if any. */
   replaced: Schema.NullOr(Schema.String),
   state: Schema.String,
 }) {}
 
-export class Unchanged extends Kiln.Result<Unchanged>("ebb/WebStore")("Unchanged", {
+export class Unchanged extends Calder.Result<Unchanged>("ebb/WebStore")("Unchanged", {
   version: Schema.String,
   reason: Schema.String,
 }) {}
 
-export class Blocked extends Kiln.Failure<Blocked>("ebb/WebStore")("Blocked", { reason: Schema.String }) {
+export class Blocked extends Calder.Failure<Blocked>("ebb/WebStore")("Blocked", { reason: Schema.String }) {
   override get message() {
     return this.reason
   }
 }
 
-export class Refused extends Kiln.Failure<Refused>("ebb/WebStore")("Refused", {
+export class Refused extends Calder.Failure<Refused>("ebb/WebStore")("Refused", {
   call: Schema.String,
   status: Schema.Number,
   body: Schema.String,
@@ -38,7 +38,7 @@ export class Refused extends Kiln.Failure<Refused>("ebb/WebStore")("Refused", {
   }
 }
 
-export class UploadFailed extends Kiln.Failure<UploadFailed>("ebb/WebStore")("UploadFailed", { state: Schema.String }) {
+export class UploadFailed extends Calder.Failure<UploadFailed>("ebb/WebStore")("UploadFailed", { state: Schema.String }) {
   override get message() {
     return `the upload ended in ${this.state}`
   }

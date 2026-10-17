@@ -65,7 +65,7 @@ Plain `tsc` and no bundler, since MV3 service workers load ES modules directly. 
 
 ## Website
 
-`site/` is [ebb.schnau.dev](https://ebb.schnau.dev), in English and, under `/de/`, German. `bun run site` builds it into `dist-site/`, with the privacy policy rendered from `PRIVACY.md` and `PRIVACY.de.md` and a demo that runs Ebb's own search from `src/archive.ts`. `site/site.ts` lists every page's URL in both languages; a German browser landing on `/` goes to `/de/` unless the visitor picked a language. `alchemy.run.ts` serves it from Cloudflare. Kiln deploys it on every push to `main` once `qa` passes, and gives each pull request from a branch of this repository a preview at `https://pr-<number>-ebb.hauke-911.workers.dev`. Deploys read a dotenv file with `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, which Kiln has as the project's `cloudflare` secret. By hand:
+`site/` is [ebb.schnau.dev](https://ebb.schnau.dev), in English and, under `/de/`, German. `bun run site` builds it into `dist-site/`, with the privacy policy rendered from `PRIVACY.md` and `PRIVACY.de.md` and a demo that runs Ebb's own search from `src/archive.ts`. `site/site.ts` lists every page's URL in both languages; a German browser landing on `/` goes to `/de/` unless the visitor picked a language. `alchemy.run.ts` serves it from Cloudflare. Calder deploys it on every push to `main` once `qa` passes, and gives each pull request from a branch of this repository a preview at `https://pr-<number>-ebb.hauke-911.workers.dev`. Deploys read a dotenv file with `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, which Calder has as the project's `cloudflare` secret. By hand:
 
 ```sh
 bun alchemy deploy --stage prod --env-file <that file>
@@ -73,7 +73,7 @@ bun alchemy deploy --stage prod --env-file <that file>
 
 ## Release
 
-Bump `version` in `static/manifest.json` and push to `main`. [Kiln](https://git.schnau.dev/schnau/kiln) builds the extension once, checks types and unit tests (`qa`) and loads that build in Chromium (`e2e`). When both pass, the `release` action uploads the build's zip to the Chrome Web Store and submits it for review, publishing automatically once approved. A push whose version the store already has ends as `Unchanged`, and a newer version replaces one still waiting in review. `.kiln/decide.ts` holds that decision and `test/release.test.ts` covers it.
+Bump `version` in `static/manifest.json` and push to `main`. [Calder](https://git.schnau.dev/schnau/calder) builds the extension once, checks types and unit tests (`qa`) and loads that build in Chromium (`e2e`). When both pass, the `release` action uploads the build's zip to the Chrome Web Store and submits it for review, publishing automatically once approved. A push whose version the store already has ends as `Unchanged`, and a newer version replaces one still waiting in review. `.calder/decide.ts` holds that decision and `test/release.test.ts` covers it.
 
 ## License
 

@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test"
-import { decide, type Status } from "../.kiln/decide.ts"
+import { decide, type Status } from "../.calder/decide.ts"
 
 const revision = (crxVersion: string, state?: string) => ({ state, distributionChannels: [{ crxVersion }] })
 const live = (version: string): Status => ({ publishedItemRevisionStatus: revision(version, "PUBLISHED") })
