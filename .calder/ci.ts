@@ -1,5 +1,6 @@
 import { Action, Files, Calder, On, Task, cmd } from "@calder-ci/core"
 import { Alchemy, Bun } from "@calder-ci/std"
+import { Schema } from "effect"
 import { flake } from "./flake.ts"
 import * as WebStore from "./WebStore.ts"
 
@@ -43,12 +44,18 @@ const release = Action.make("release", {
 })
 
 /** The website (alchemy.run.ts). It only needs qa to deploy; the extension's browser test gates the release. */
-const website = { shell, setup: install, runner: "bun", env: "cloudflare" } satisfies Alchemy.Stack
+const website = {
+  shell,
+  setup: install,
+  runner: "bun",
+  env: "cloudflare",
+  outputs: { name: "Ebb", schema: Schema.Struct({ url: Schema.String }) },
+} satisfies Alchemy.Stack<{ readonly url: string }>
 
 export default Calder.project({
   rules: [
     On.pullRequest([qa, e2e]),
-    On.preview(Alchemy.preview(website, { url: (pr) => `https://pr-${pr}-ebb.hauke-911.workers.dev`, after: [qa] })),
+    On.preview(Alchemy.preview(website, { url: (_pr, outputs) => outputs.url, after: [qa] })),
     On.pullRequestClosed([Alchemy.destroy(website)]),
     On.push("main", [release, Alchemy.deploy(website, { stage: "prod", after: [qa] })]),
   ],
