@@ -12,13 +12,14 @@
     "site": "bun site/build.ts"
   },
   "devDependencies": {
-    "@effect/platform-bun": "4.0.5",
-    "@effect/platform-node": "4.0.5",
+    "@alchemy.run/cloudflare": "2.0.0-beta.85",
+    "@effect/platform-bun": "4.1.2",
+    "@effect/platform-node": "4.1.2",
     "@fontsource-variable/instrument-sans": "5.3.0",
     "@types/bun": "^1.4.2",
     "@types/chrome": "^0.3.4",
-    "alchemy": "2.0.0-beta.83",
-    "effect": "4.0.5",
+    "alchemy": "2.0.0-beta.85",
+    "effect": "4.1.2",
     "puppeteer-core": "^25.13.0",
     "typescript": "^7.0.2"
   }

@@ -1,5 +1,5 @@
 import * as Alchemy from "alchemy"
-import * as Cloudflare from "alchemy/Cloudflare"
+import * as Cloudflare from "@alchemy.run/cloudflare"
 import * as Effect from "effect/Effect"
 
 const productionStage = "prod"
@@ -17,7 +17,12 @@ const headers = `
  */
 export default Alchemy.Stack(
   "Ebb",
-  { providers: Cloudflare.providers(), state: Cloudflare.state() },
+  {
+    providers: Cloudflare.providers(),
+    // The fleet's state store. Only Alchemy beta.85 or newer may use it:
+    // older versions can replace its key.
+    state: Cloudflare.state({ workerName: "alchemy-state-store-fleet" }),
+  },
   Effect.gen(function* () {
     const { stage } = yield* Alchemy.Stack
     const site = yield* Cloudflare.Website.StaticSite("Site", {
