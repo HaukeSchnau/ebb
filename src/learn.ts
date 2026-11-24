@@ -19,15 +19,29 @@ const MIN_RETURNED = 4;
 const RETURN_RATE = 0.15;
 const SITE_RETURNS = 3;
 
-export function remember(history: readonly Archived[], added: readonly Archived[], now: number): Archived[] {
+export function remember(
+  history: readonly Archived[],
+  added: readonly Archived[],
+  now: number,
+): Archived[] {
   return [...history, ...added].filter((a) => a.at > now - REMEMBER);
 }
 
 /** Marks the newest unreturned archive of `url` from the last week as returned. */
-export function returned(history: readonly Archived[], url: string, now: number): Archived[] | undefined {
-  const index = history.findLastIndex((a) => a.url === url && a.back === undefined && a.at > now - RETURN_WINDOW);
-  if (index < 0) return undefined;
-  return history.with(index, { ...history[index]!, back: now });
+export function returned(
+  history: readonly Archived[],
+  url: string,
+  now: number,
+): Archived[] | undefined {
+  const index = history.findLastIndex(
+    (a) => a.url === url && a.back === undefined && a.at > now - RETURN_WINDOW,
+  );
+
+  const found = history[index];
+
+  if (found === undefined) return undefined;
+
+  return history.with(index, { ...found, back: now });
 }
 
 /**
@@ -45,20 +59,35 @@ export function suggest(
   const suggestions: Suggestion[] = [];
 
   const next = THRESHOLDS.find((t) => t > current.thresholdMs);
+
   if (next !== undefined && now >= dismissed.thresholdUntil) {
     const settled = auto.filter((a) => a.thresholdMs === current.thresholdMs && a.at <= now - DAY);
     const quick = settled.filter((a) => a.back !== undefined && a.back - a.at <= DAY);
-    if (settled.length >= MIN_ARCHIVED && quick.length >= MIN_RETURNED && quick.length / settled.length >= RETURN_RATE) {
-      suggestions.push({ kind: "threshold", from: current.thresholdMs, to: next, returned: quick.length, total: settled.length });
+
+    if (
+      settled.length >= MIN_ARCHIVED &&
+      quick.length >= MIN_RETURNED &&
+      quick.length / settled.length >= RETURN_RATE
+    ) {
+      suggestions.push({
+        kind: "threshold",
+        from: current.thresholdMs,
+        to: next,
+        returned: quick.length,
+        total: settled.length,
+      });
     }
   }
 
   const week = auto.filter((a) => a.back !== undefined && a.back > now - 7 * DAY);
+
   const bySite = [...Map.groupBy(week, (a) => siteOf(a.url))]
     .filter(([site, all]) => site !== "" && all.length >= SITE_RETURNS)
     .filter(([site]) => !current.keptSites.includes(site) && !dismissed.sites.includes(site))
-    .sort((a, b) => b[1].length - a[1].length);
+    .toSorted((a, b) => b[1].length - a[1].length);
+
   const top = bySite[0];
+
   if (top) suggestions.push({ kind: "site", site: top[0], returns: top[1].length });
 
   return suggestions;

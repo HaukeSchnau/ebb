@@ -26,7 +26,9 @@ export function release(kept: readonly KeptTab[], id: number): KeptTab[] {
 /** After a restart: every kept tab finds an open tab with its URL, or waits for one. */
 export function rematch(kept: readonly KeptTab[], tabs: readonly Tab[], now: number): KeptTab[] {
   let result = kept.map((k): KeptTab => ({ url: k.url, lostAt: k.lostAt ?? now }));
+
   for (const tab of tabs) result = follow(result, tab, now);
+
   return result;
 }
 
@@ -39,8 +41,16 @@ export function follow(kept: KeptTab[], tab: Tab, now: number): KeptTab[] {
   const alive = kept.filter((k) => k.lostAt === undefined || k.lostAt > now - WAIT);
   const unchanged = alive.length === kept.length;
   const mine = alive.findIndex((k) => k.id === tab.id);
-  if (mine >= 0) return unchanged && alive[mine]!.url === tab.url ? kept : alive.with(mine, { url: tab.url, id: tab.id });
+
+  const current = alive[mine];
+
+  if (current)
+    return unchanged && current.url === tab.url
+      ? kept
+      : alive.with(mine, { url: tab.url, id: tab.id });
   const waiting = alive.findIndex((k) => k.id === undefined && k.url === tab.url);
+
   if (waiting >= 0) return alive.with(waiting, { url: tab.url, id: tab.id });
+
   return unchanged ? kept : alive;
 }

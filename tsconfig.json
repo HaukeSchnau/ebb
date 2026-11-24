@@ -1,16 +1,8 @@
 {
+  "extends": "@schnau/tsconfig",
   "compilerOptions": {
-    "target": "ES2024",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "lib": ["ES2024", "DOM", "DOM.Iterable"],
-    "types": ["chrome", "bun"],
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "verbatimModuleSyntax": true,
-    "rewriteRelativeImportExtensions": true,
-    "skipLibCheck": true,
-    "noEmit": true
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "types": ["chrome", "bun"]
   },
-  "include": ["src", "test", "e2e", "site", "alchemy.run.ts"]
+  "include": ["src", "test", "e2e", "site", "alchemy.run.ts", "vite.config.ts"]
 }

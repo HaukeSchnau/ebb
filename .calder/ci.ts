@@ -1,11 +1,11 @@
-import { Action, Files, Calder, On, Task, cmd } from "@calder-ci/core"
-import { Alchemy, Bun } from "@calder-ci/std"
-import { Schema } from "effect"
-import { flake } from "./flake.ts"
-import * as WebStore from "./WebStore.ts"
+import { Action, Files, Calder, On, Task, cmd } from "@calder-ci/core";
+import { Alchemy, Bun, Vp } from "@calder-ci/std";
+import { Schema } from "effect";
+import { flake } from "./flake.ts";
+import * as WebStore from "./WebStore.ts";
 
-const shell = flake.devShells.ci
-const install = Bun.install({ shell })
+const shell = flake.devShells.ci;
+const install = Bun.install({ shell });
 
 /** The extension as the store gets it: dist/ and its zip. */
 const build = Task.make("build", {
@@ -14,10 +14,10 @@ const build = Task.make("build", {
   run: cmd`bun run zip`,
   inputs: Files.glob("src/**", "static/**", "tsconfig.json", "tsconfig.build.json"),
   outputs: { dist: "dist", zip: "ebb.zip" },
-})
+});
 
-/** Types and unit tests. */
-const qa = Task.make("qa", { shell, setup: install, run: cmd`bun run qa` })
+/** `vp check` (format, lint and types) and `vp test`. */
+const gate = Vp.tasks({ shell, setup: install });
 
 /** That exact build in Chromium. Its screenshots stay downloadable from the run, also when a check fails. */
 const e2e = Task.make("e2e", {
@@ -26,37 +26,41 @@ const e2e = Task.make("e2e", {
   run: cmd`bun e2e/extension.ts ${build.outputs.dist} e2e/out`,
   inputs: Files.of("e2e/extension.ts"),
   outputs: { screenshots: "e2e/out" },
-})
+});
 
 /**
- * Submits the build once qa and e2e pass, when its manifest names a version the store doesn't have
+ * Submits the build once the gate and e2e pass, when its manifest names a version the store doesn't have
  * yet: bumping the version and pushing is the release. Every other push ends as `Unchanged`.
  */
-const release = Action.make("release", {
-  needs: { zip: build.outputs.zip, dist: build.outputs.dist },
-  after: [qa, e2e],
-  grants: { secrets: ["chrome-web-store"] },
-}, function*({ zip, dist }) {
-  return yield* WebStore.release(
-    { publisher: "dea543f7-3e2f-4398-8805-c6aeedf8fdb7", id: "jifmboaehilnoobbnfffolkhioeknlne" },
-    { zip, manifest: `${dist}/manifest.json` },
-  )
-})
+const release = Action.make(
+  "release",
+  {
+    needs: { zip: build.outputs.zip, dist: build.outputs.dist },
+    after: [...gate, e2e],
+    grants: { secrets: ["chrome-web-store"] },
+  },
+  function* ({ zip, dist }) {
+    return yield* WebStore.release(
+      { publisher: "dea543f7-3e2f-4398-8805-c6aeedf8fdb7", id: "jifmboaehilnoobbnfffolkhioeknlne" },
+      { zip, manifest: `${dist}/manifest.json` },
+    );
+  },
+);
 
-/** The website (alchemy.run.ts). It only needs qa to deploy; the extension's browser test gates the release. */
+/** The website (alchemy.run.ts). It only needs the gate to deploy; the extension's browser test gates the release. */
 const website = {
   shell,
   setup: install,
   runner: "bun",
   env: "cloudflare",
   outputs: { name: "Ebb", schema: Schema.Struct({ url: Schema.String }) },
-} satisfies Alchemy.Stack<{ readonly url: string }>
+} satisfies Alchemy.Stack<{ readonly url: string }>;
 
 export default Calder.project({
   rules: [
-    On.pullRequest([qa, e2e]),
-    On.preview(Alchemy.preview(website, { url: (_pr, outputs) => outputs.url, after: [qa] })),
+    On.pullRequest([...gate, e2e]),
+    On.preview(Alchemy.preview(website, { url: (_pr, outputs) => outputs.url, after: [...gate] })),
     On.pullRequestClosed([Alchemy.destroy(website)]),
-    On.push("main", [release, Alchemy.deploy(website, { stage: "prod", after: [qa] })]),
+    On.push("main", [release, Alchemy.deploy(website, { stage: "prod", after: [...gate] })]),
   ],
-})
+});

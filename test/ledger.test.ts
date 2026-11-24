@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test";
+import { expect, test } from "vite-plus/test";
 import { EMPTY_LEDGER, ledgerAtInstall, observe, prune } from "../src/ledger.ts";
 import { DAY, HOUR, MINUTE, RULES, age } from "../src/rules.ts";
 
@@ -25,7 +25,11 @@ test("a hole from sleep or a quit browser becomes a gap", () => {
 });
 
 test("prune keeps every gap since the oldest open tab was last seen, however old", () => {
-  const night = (daysAgo: number) => ({ start: t0 - daysAgo * DAY, end: t0 - daysAgo * DAY + 16 * HOUR });
+  const night = (daysAgo: number) => ({
+    start: t0 - daysAgo * DAY,
+    end: t0 - daysAgo * DAY + 16 * HOUR,
+  });
+
   const ledger = { presentAt: t0, gaps: [night(90), night(60), night(1)] };
   expect(prune(ledger, t0 - 70 * DAY).gaps).toEqual([night(60), night(1)]);
   expect(prune(ledger, t0 - 100 * DAY)).toBe(ledger);

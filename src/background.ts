@@ -6,9 +6,10 @@ import { ledgerAtInstall, observe, prune } from "./ledger.ts";
 import { t } from "./locale.ts";
 import type { Cleared, Reply, Request } from "./messages.ts";
 import { DAY, assess, hostOf, siteOf, type Gap, type Rules } from "./rules.ts";
-import { currentRules, local, session, settings } from "./storage.ts";
+import { currentRules, local, session, settings, type Local } from "./storage.ts";
 
 type Disposition = `${chrome.omnibox.OnInputEnteredDisposition}`;
+
 type Doomed = { tab: chrome.tabs.Tab; id: number; idleMs: number };
 
 const PRESENCE_SECONDS = 10 * 60;
@@ -17,9 +18,11 @@ const DISMISS_THRESHOLD_FOR = 14 * DAY;
 // The alarm, tab events and panel messages all read-modify-write the same
 // storage keys. One queue keeps those cycles from interleaving.
 let queue: Promise<unknown> = Promise.resolve();
+
 function serial<T>(job: () => Promise<T>): Promise<T> {
   const run = queue.then(job);
   queue = run.catch(() => undefined);
+
   return run;
 }
 
@@ -28,6 +31,7 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
     void serial(() => local.set({ ledger: ledgerAtInstall(Date.now()) }));
     void chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") });
   }
+
   createMenus();
   void setup();
 });
@@ -45,14 +49,21 @@ async function setup() {
   await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
   await chrome.action.setBadgeBackgroundColor({ color: "#5a54d6" });
   const active = await chrome.tabs.query({ active: true, windowType: "normal" });
-  const activeByWindow = Object.fromEntries(active.flatMap((tab) => (tab.id === undefined ? [] : [[tab.windowId, tab.id]])));
+
+  const activeByWindow = Object.fromEntries(
+    active.flatMap((tab) => (tab.id === undefined ? [] : [[tab.windowId, tab.id]])),
+  );
+
   await serial(() => session.set({ activeByWindow }));
   await renderBadge();
 }
 
 async function openTabs() {
   const tabs = await chrome.tabs.query({ windowType: "normal" });
-  return tabs.flatMap((tab) => (tab.id === undefined || tab.url === undefined ? [] : [{ id: tab.id, url: tab.url }]));
+
+  return tabs.flatMap((tab) =>
+    tab.id === undefined || tab.url === undefined ? [] : [{ id: tab.id, url: tab.url }],
+  );
 }
 
 // ---------------------------------------------------------------- sweeping
@@ -67,14 +78,20 @@ async function tick() {
   const { ledger } = await local.get("ledger");
   const observed = observe(ledger, now, present);
   const rules = await currentRules();
+
   if (!present && rules.clock === "present") return;
 
   const tabs = await chrome.tabs.query({ windowType: "normal" });
   const assessed = await assessAndRemember(tabs, now, observed.gaps, rules);
-  const next = assessed.length > 0 ? prune(observed, Math.min(...assessed.map((a) => a.seen))) : observed;
+
+  const next =
+    assessed.length > 0 ? prune(observed, Math.min(...assessed.map((a) => a.seen))) : observed;
+
   if (next !== ledger) await local.set({ ledger: next });
   await archiveTabs(
-    assessed.flatMap(({ tab, id, verdict }) => (verdict.kind === "archive" ? [{ tab, id, idleMs: verdict.idleMs }] : [])),
+    assessed.flatMap(({ tab, id, verdict }) =>
+      verdict.kind === "archive" ? [{ tab, id, idleMs: verdict.idleMs }] : [],
+    ),
     now,
     "auto",
     rules,
@@ -83,45 +100,78 @@ async function tick() {
 
 async function clearWindow(windowId: number): Promise<Cleared | null> {
   const now = Date.now();
+
   const [tabs, { ledger }, rules] = await Promise.all([
     chrome.tabs.query({ windowId, windowType: "normal" }),
     local.get("ledger"),
     currentRules(),
   ]);
+
   const assessed = await assessAndRemember(tabs, now, ledger.gaps, rules);
+
   return archiveTabs(
-    assessed.flatMap(({ tab, id, verdict }) => (verdict.kind === "protected" ? [] : [{ tab, id, idleMs: verdict.idleMs }])),
+    assessed.flatMap(({ tab, id, verdict }) =>
+      verdict.kind === "protected" ? [] : [{ tab, id, idleMs: verdict.idleMs }],
+    ),
     now,
     "clear",
     rules,
   );
 }
 
-async function assessAndRemember(tabs: chrome.tabs.Tab[], now: number, gaps: readonly Gap[], rules: Rules) {
-  const [{ ebbSaw }, { keptTabs }] = await Promise.all([session.get("ebbSaw"), local.get("keptTabs")]);
+async function assessAndRemember(
+  tabs: chrome.tabs.Tab[],
+  now: number,
+  gaps: readonly Gap[],
+  rules: Rules,
+) {
+  const [{ ebbSaw }, { keptTabs }] = await Promise.all([
+    session.get("ebbSaw"),
+    local.get("keptTabs"),
+  ]);
+
   const assessed = assess(tabs, { now, gaps, ebbSaw, kept: keptIds(keptTabs) }, rules);
   const firstSightings = assessed.filter((a) => a.firstSighting);
+
   if (firstSightings.length > 0) {
     for (const { id } of firstSightings) ebbSaw[id] = now;
     await session.set({ ebbSaw });
   }
+
   return assessed;
 }
 
-async function archiveTabs(doomed: readonly Doomed[], now: number, via: Via, rules: Rules): Promise<Cleared | null> {
+async function archiveTabs(
+  doomed: readonly Doomed[],
+  now: number,
+  via: Via,
+  rules: Rules,
+): Promise<Cleared | null> {
   if (doomed.length === 0) return null;
+
   const entries = doomed.flatMap(({ tab, idleMs }): Entry[] =>
-    isRecordable(tab.url) ? [{ url: tab.url, title: tab.title || tab.url, archivedAt: now, idleMs, via }] : [],
+    isRecordable(tab.url)
+      ? [{ url: tab.url, title: tab.title || tab.url, archivedAt: now, idleMs, via }]
+      : [],
   );
-  const archived = entries.map((e): Archived => ({ url: e.url, at: now, via, thresholdMs: rules.thresholdMs }));
+
+  const archived = entries.map((e): Archived => ({
+    url: e.url,
+    at: now,
+    via,
+    thresholdMs: rules.thresholdMs,
+  }));
+
   const { archive, unseen, history } = await local.get("archive", "unseen", "history");
   await local.set({
     archive: upsert(archive, entries),
     unseen: unseen + entries.length,
     history: remember(history, archived, now),
   });
+
   for (const { id } of doomed) await chrome.tabs.remove(id).catch(() => undefined);
   await renderBadge();
+
   return { at: now, count: entries.length };
 }
 
@@ -131,37 +181,51 @@ chrome.tabs.onActivated.addListener(({ tabId, windowId }) => {
   void serial(async () => {
     const { ebbSaw, activeByWindow } = await session.get("ebbSaw", "activeByWindow");
     const previous = activeByWindow[windowId];
+
     if (previous !== undefined && previous !== tabId) ebbSaw[previous] = Date.now();
     await session.set({ ebbSaw, activeByWindow: { ...activeByWindow, [windowId]: tabId } });
   });
   refreshMenus();
 });
 
-chrome.tabs.onRemoved.addListener((tabId) =>
-  void serial(async () => {
-    const [{ ebbSaw }, { keptTabs }] = await Promise.all([session.get("ebbSaw"), local.get("keptTabs")]);
-    delete ebbSaw[tabId];
-    await session.set({ ebbSaw });
-    if (keptTabs.some((k) => k.id === tabId)) await local.set({ keptTabs: release(keptTabs, tabId) });
-  }),
+chrome.tabs.onRemoved.addListener(
+  (tabId) =>
+    void serial(async () => {
+      const [{ ebbSaw }, { keptTabs }] = await Promise.all([
+        session.get("ebbSaw"),
+        local.get("keptTabs"),
+      ]);
+
+      delete ebbSaw[tabId];
+      await session.set({ ebbSaw });
+
+      if (keptTabs.some((k) => k.id === tabId))
+        await local.set({ keptTabs: release(keptTabs, tabId) });
+    }),
 );
 
-chrome.tabs.onReplaced.addListener((added, removed) =>
-  void serial(async () => {
-    const { keptTabs } = await local.get("keptTabs");
-    if (keptTabs.some((k) => k.id === removed)) {
-      await local.set({ keptTabs: keptTabs.map((k) => (k.id === removed ? { ...k, id: added } : k)) });
-    }
-  }),
+chrome.tabs.onReplaced.addListener(
+  (added, removed) =>
+    void serial(async () => {
+      const { keptTabs } = await local.get("keptTabs");
+
+      if (keptTabs.some((k) => k.id === removed)) {
+        await local.set({
+          keptTabs: keptTabs.map((k) => (k.id === removed ? { ...k, id: added } : k)),
+        });
+      }
+    }),
 );
 
 chrome.tabs.onCreated.addListener((tab) => {
   const url = tab.pendingUrl ?? tab.url;
+
   if (tab.id !== undefined && url) noticeUrl(tab.id, url);
 });
 
 chrome.tabs.onUpdated.addListener((tabId, change, tab) => {
   if (change.url) noticeUrl(tabId, change.url);
+
   if (tab.active && (change.url || change.status)) refreshMenus();
 });
 
@@ -178,30 +242,42 @@ function noticeUrl(tabId: number, url: string) {
       const back = returned(history, url, now);
       const remaining = without(archive, new Set([url]));
       const following = follow(keptTabs, { id: tabId, url }, now);
-      await local.set({
-        ...(back ? { history: back } : {}),
-        ...(remaining.length !== archive.length ? { archive: remaining } : {}),
-        ...(following !== keptTabs ? { keptTabs: following } : {}),
-      });
+      const patch: Partial<Local> = {};
+
+      if (back) patch.history = back;
+
+      if (remaining.length !== archive.length) patch.archive = remaining;
+
+      if (following !== keptTabs) patch.keptTabs = following;
+      await local.set(patch);
     });
   });
 }
 
 type Watched = { urls: Set<string>; keptIds: Set<number>; waiting: Set<string> };
+
 let watchedCache: Promise<Watched> | undefined;
 
 // Most navigations concern none of this, so they shouldn't read the whole archive.
 function watched(): Promise<Watched> {
-  watchedCache ??= local.get("archive", "history", "keptTabs").then(({ archive, history, keptTabs }) => ({
-    urls: new Set([...archive.map((e) => e.url), ...history.flatMap((a) => (a.back === undefined ? [a.url] : []))]),
-    keptIds: keptIds(keptTabs),
-    waiting: new Set(keptTabs.flatMap((k) => (k.id === undefined ? [k.url] : []))),
-  }));
+  watchedCache ??= local
+    .get("archive", "history", "keptTabs")
+    .then(({ archive, history, keptTabs }) => ({
+      urls: new Set([
+        ...archive.map((e) => e.url),
+        ...history.flatMap((a) => (a.back === undefined ? [a.url] : [])),
+      ]),
+      keptIds: keptIds(keptTabs),
+      waiting: new Set(keptTabs.flatMap((k) => (k.id === undefined ? [k.url] : []))),
+    }));
+
   return watchedCache;
 }
 
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === "local" && (changes.archive || changes.history || changes.keptTabs)) watchedCache = undefined;
+  if (area === "local" && (changes.archive || changes.history || changes.keptTabs))
+    watchedCache = undefined;
+
   if (changes.keptTabs || changes.keptSites) refreshMenus();
 });
 
@@ -213,18 +289,24 @@ async function reopen(url: string, disposition: Disposition, active = true) {
   } else {
     const recent = await chrome.sessions.getRecentlyClosed();
     const sessionId = recent.find((closed) => closed.tab?.url === url)?.tab?.sessionId;
+
     if (sessionId) await chrome.sessions.restore(sessionId);
     else await chrome.tabs.create({ url, active: active && disposition === "newForegroundTab" });
   }
+
   const now = Date.now();
   const { archive, history } = await local.get("archive", "history");
   const back = returned(history, url, now);
-  await local.set({ archive: without(archive, new Set([url])), ...(back ? { history: back } : {}) });
+  const patch: Partial<Local> = { archive: without(archive, new Set([url])) };
+
+  if (back) patch.history = back;
+  await local.set(patch);
 }
 
 async function reopenSweep(at: number) {
   const { archive } = await local.get("archive");
   const entries = archive.filter((e) => e.archivedAt === at);
+
   for (const entry of entries.toReversed()) await reopen(entry.url, "newBackgroundTab", false);
 }
 
@@ -239,14 +321,24 @@ const MENU = { tab: "keep-tab", site: "keep-site" } as const;
 
 function createMenus() {
   void chrome.contextMenus.removeAll().then(() => {
-    const contexts: [`${chrome.contextMenus.ContextType}`, ...`${chrome.contextMenus.ContextType}`[]] = ["page", "action"];
+    const contexts: [
+      `${chrome.contextMenus.ContextType}`,
+      ...`${chrome.contextMenus.ContextType}`[],
+    ] = ["page", "action"];
+
     chrome.contextMenus.create({ id: MENU.tab, title: t.keepTab, type: "checkbox", contexts });
-    chrome.contextMenus.create({ id: MENU.site, title: t.neverArchiveThisSite, type: "checkbox", contexts });
+    chrome.contextMenus.create({
+      id: MENU.site,
+      title: t.neverArchiveThisSite,
+      type: "checkbox",
+      contexts,
+    });
     refreshMenus();
   });
 }
 
 let menuTimer: ReturnType<typeof setTimeout> | undefined;
+
 function refreshMenus() {
   clearTimeout(menuTimer);
   menuTimer = setTimeout(async () => {
@@ -255,6 +347,7 @@ function refreshMenus() {
       local.get("keptTabs"),
       settings.get("keptSites"),
     ]);
+
     const site = tab?.url ? siteOf(tab.url) : "";
     const tabKept = tab?.id !== undefined && keptIds(keptTabs).has(tab.id);
     await Promise.all([
@@ -273,16 +366,24 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (info.menuItemId === MENU.tab && tab?.id !== undefined) {
       const { keptTabs } = await local.get("keptTabs");
       const url = tab.url ?? tab.pendingUrl ?? "";
-      await local.set({ keptTabs: info.checked ? keep(keptTabs, { id: tab.id, url }) : release(keptTabs, tab.id) });
+      await local.set({
+        keptTabs: info.checked ? keep(keptTabs, { id: tab.id, url }) : release(keptTabs, tab.id),
+      });
     }
-    if (info.menuItemId === MENU.site && tab?.url) await keepSite(siteOf(tab.url), info.checked === true);
+
+    if (info.menuItemId === MENU.site && tab?.url)
+      await keepSite(siteOf(tab.url), info.checked === true);
   });
 });
 
 async function keepSite(site: string, kept: boolean) {
   if (!site) return;
   const { keptSites } = await settings.get("keptSites");
-  const next = kept ? [...new Set([...keptSites, site])].sort() : keptSites.filter((s) => s !== site);
+
+  const next = kept
+    ? [...new Set([...keptSites, site])].toSorted()
+    : keptSites.filter((s) => s !== site);
+
   await settings.set({ keptSites: next });
 }
 
@@ -305,7 +406,9 @@ async function dismiss(suggestion: Suggestion) {
 
 // ---------------------------------------------------------------- messages
 
-type Handlers = { [T in Request["type"]]: (request: Extract<Request, { type: T }>) => Promise<Reply<Extract<Request, { type: T }>>> };
+type Requests = { [R in Request as R["type"]]: R };
+
+type Handlers = { [T in keyof Requests]: (request: Requests[T]) => Promise<Reply<Requests[T]>> };
 
 const handlers: Handlers = {
   reopen: ({ url }) => reopen(url, "newForegroundTab"),
@@ -328,19 +431,28 @@ const handlers: Handlers = {
   dismiss: ({ suggestion }) => dismiss(suggestion),
 };
 
+// Generic in the request's type, so TypeScript relates the request to its own handler.
+const handle = <T extends keyof Requests>(type: T, request: Requests[T]) => handlers[type](request);
+
+async function respond(request: Request) {
+  try {
+    return { ok: true, value: await serial(() => handle(request.type, request)) };
+  } catch (error) {
+    return { ok: false, error: String(error) };
+  }
+}
+
 chrome.runtime.onMessage.addListener((request: Request, _sender, reply) => {
-  // TypeScript can't relate a union member to its handler, so the lookup needs one cast.
-  const handler = handlers[request.type] as (r: Request) => Promise<unknown>;
-  serial(() => handler(request)).then(
-    (value) => reply({ ok: true, value }),
-    (error: unknown) => reply({ ok: false, error: String(error) }),
-  );
+  void respond(request).then(reply);
+
   return true;
 });
 
 chrome.commands.onCommand.addListener((command, tab) => {
   const windowId = tab?.windowId;
-  if (command === "clear-window" && windowId !== undefined) void serial(() => clearWindow(windowId));
+
+  if (command === "clear-window" && windowId !== undefined)
+    void serial(() => clearWindow(windowId));
 });
 
 // ---------------------------------------------------------------- address bar
@@ -361,10 +473,12 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
   });
 });
 
-chrome.omnibox.onInputEntered.addListener((text, disposition) =>
-  void serial(async () => {
-    const { archive } = await local.get("archive");
-    const entry = archive.find((candidate) => candidate.url === text) ?? search(archive, text)[0];
-    if (entry) await reopen(entry.url, disposition);
-  }),
+chrome.omnibox.onInputEntered.addListener(
+  (text, disposition) =>
+    void serial(async () => {
+      const { archive } = await local.get("archive");
+      const entry = archive.find((candidate) => candidate.url === text) ?? search(archive, text)[0];
+
+      if (entry) await reopen(entry.url, disposition);
+    }),
 );

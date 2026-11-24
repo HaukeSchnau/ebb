@@ -1,48 +1,61 @@
 <!doctype html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ebb</title>
-  <link rel="stylesheet" href="panel.css">
-</head>
-<body>
-  <header>
-    <div class="bar">
-      <h1><span data-text="archive"></span> <span id="count"></span></h1>
-      <button id="clear" data-text="clearWindow" data-title="clearWindowTitle"></button>
-    </div>
-    <input id="search" type="search" data-placeholder="search" data-label="search" autocomplete="off" autofocus
-      aria-describedby="keys" aria-controls="list">
-    <div id="sites" class="sites"></div>
-    <p id="keys" class="keys" data-text="keys"></p>
-  </header>
-  <div id="undo" class="undo" role="status" hidden></div>
-  <div id="suggestions"></div>
-  <main id="list" role="listbox" data-label="archivedTabs"></main>
-  <p id="empty" hidden></p>
-  <footer>
-    <details>
-      <summary id="next-summary" data-text="nextToGo"></summary>
-      <ol id="next-list"></ol>
-    </details>
-    <details>
-      <summary id="kept-summary" data-text="kept"></summary>
-      <div id="kept-body" class="kept"></div>
-    </details>
-    <details>
-      <summary data-text="clock"></summary>
-      <div id="clock-body"></div>
-    </details>
-    <details>
-      <summary data-text="settings"></summary>
-      <div id="settings">
-        <label><span data-text="archiveAfter"></span> <select id="threshold"></select></label>
-        <label><input type="checkbox" id="protect-groups"> <span data-text="protectGroups"></span></label>
-        <p data-text="settingsNote"></p>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ebb</title>
+    <link rel="stylesheet" href="panel.css" />
+  </head>
+  <body>
+    <header>
+      <div class="bar">
+        <h1><span data-text="archive"></span> <span id="count"></span></h1>
+        <button id="clear" data-text="clearWindow" data-title="clearWindowTitle"></button>
       </div>
-    </details>
-  </footer>
-  <script type="module" src="panel.js"></script>
-</body>
+      <input
+        id="search"
+        type="search"
+        data-placeholder="search"
+        data-label="search"
+        autocomplete="off"
+        autofocus
+        aria-describedby="keys"
+        aria-controls="list"
+      />
+      <div id="sites" class="sites"></div>
+      <p id="keys" class="keys" data-text="keys"></p>
+    </header>
+    <div id="undo" class="undo" role="status" hidden></div>
+    <div id="suggestions"></div>
+    <main id="list" role="listbox" data-label="archivedTabs"></main>
+    <p id="empty" hidden></p>
+    <footer>
+      <details>
+        <summary id="next-summary" data-text="nextToGo"></summary>
+        <ol id="next-list"></ol>
+      </details>
+      <details>
+        <summary id="kept-summary" data-text="kept"></summary>
+        <div id="kept-body" class="kept"></div>
+      </details>
+      <details>
+        <summary data-text="clock"></summary>
+        <div id="clock-body"></div>
+      </details>
+      <details>
+        <summary data-text="settings"></summary>
+        <div id="settings">
+          <label
+            ><span data-text="archiveAfter"></span>
+            <select id="threshold"></select
+          ></label>
+          <label
+            ><input type="checkbox" id="protect-groups" /> <span data-text="protectGroups"></span
+          ></label>
+          <p data-text="settingsNote"></p>
+        </div>
+      </details>
+    </footer>
+    <script type="module" src="panel.js"></script>
+  </body>
 </html>

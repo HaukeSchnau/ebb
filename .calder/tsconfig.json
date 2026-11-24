@@ -1,6 +1,4 @@
 {
   "extends": "@calder-ci/tsconfig",
-  "include": [
-    "*.ts"
-  ]
+  "include": ["*.ts"]
 }

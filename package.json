@@ -4,10 +4,9 @@
   "type": "module",
   "scripts": {
     "build": "rm -rf dist && tsrs -p tsconfig.build.json && cp -r static/. dist/",
-    "check": "tsrs -p tsconfig.json",
-    "test": "bun test",
+    "check": "vp check",
+    "test": "vp test run",
     "zip": "rm -f ebb.zip && bun run build && cd dist && zip -qr ../ebb.zip .",
-    "qa": "bun run check && bun test",
     "e2e": "bun run zip && bun e2e/extension.ts dist e2e/out",
     "site": "bun site/build.ts"
   },
@@ -16,11 +15,17 @@
     "@effect/platform-bun": "4.1.2",
     "@effect/platform-node": "4.1.2",
     "@fontsource-variable/instrument-sans": "5.3.0",
+    "@oxlint/plugins": "1.94.0",
+    "@schnau/tsconfig": "^0.1.0",
     "@types/bun": "^1.4.2",
     "@types/chrome": "^0.3.4",
     "alchemy": "2.0.0-beta.85",
     "effect": "4.1.2",
     "puppeteer-core": "^25.13.0",
-    "tsrs": "^7.1.0-beta.tsrs5"
+    "tsrs": "7.1.0-beta.tsrs4",
+    "vite-plus": "^1.8.0"
+  },
+  "engines": {
+    "node": ">=26"
   }
 }
