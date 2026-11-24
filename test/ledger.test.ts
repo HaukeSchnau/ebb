@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test";
+import { expect, test } from "vite-plus/test";
 import { EMPTY_LEDGER, ledgerAtInstall, observe, prune } from "../src/ledger.ts";
 import { DAY, HOUR, MINUTE, RULES, age } from "../src/rules.ts";
 

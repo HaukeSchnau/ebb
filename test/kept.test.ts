@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test";
+import { expect, test } from "vite-plus/test";
 import { follow, keep, keptIds, rematch } from "../src/kept.ts";
 import { DAY, HOUR } from "../src/rules.ts";
 

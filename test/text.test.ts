@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test";
+import { expect, test } from "vite-plus/test";
 import { DAY, HOUR, MINUTE } from "../src/rules.ts";
 import { localeOf, texts } from "../src/text.ts";
 

@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test";
+import { expect, test } from "vite-plus/test";
 import { search, sweeps, topSites, upsert, type Entry } from "../src/archive.ts";
 
 const entry = (url: string, title: string, archivedAt: number, via?: Entry["via"]): Entry => ({

@@ -56,16 +56,17 @@ Ebb makes no network requests and has no server. The archive stays on your devic
 ## Develop
 
 ```sh
-bun run qa      # types and unit tests
+bun run check   # vp check: format, lint and types
+bun run test    # vp test run: the unit tests, on vitest
 bun run zip     # dist/ and ebb.zip for the Chrome Web Store (needs zip)
 nix develop .#e2e -c bun run e2e   # the build in Chromium, screenshots in e2e/out
 ```
 
-Plain `tsrs` and no bundler, since MV3 service workers load ES modules directly. Every word the extension shows lives in `src/text.ts`, in English and German, and the manifest's in `static/_locales`. The rules in `src/rules.ts` and the ledger in `src/ledger.ts` are pure functions. `src/background.ts` owns every storage write.
+Plain `tsrs` and no bundler, since MV3 service workers load ES modules directly. Bun installs and runs the scripts; Vite+ (`vite.config.ts`) formats, lints, type-checks and runs the tests, and `nix develop` has Node, Bun and the rest. Every word the extension shows lives in `src/text.ts`, in English and German, and the manifest's in `static/_locales`. The rules in `src/rules.ts` and the ledger in `src/ledger.ts` are pure functions. `src/background.ts` owns every storage write.
 
 ## Website
 
-`site/` is [ebb.schnau.dev](https://ebb.schnau.dev), in English and, under `/de/`, German. `bun run site` builds it into `dist-site/`, with the privacy policy rendered from `PRIVACY.md` and `PRIVACY.de.md` and a demo that runs Ebb's own search from `src/archive.ts`. `site/site.ts` lists every page's URL in both languages; a German browser landing on `/` goes to `/de/` unless the visitor picked a language. `alchemy.run.ts` serves it from Cloudflare. Calder deploys it on every push to `main` once `qa` passes, and gives each pull request from a branch of this repository a preview at `https://pr-<number>-ebb.hauke-911.workers.dev`. Deploys read a dotenv file with `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, which Calder has as the project's `cloudflare` secret. By hand:
+`site/` is [ebb.schnau.dev](https://ebb.schnau.dev), in English and, under `/de/`, German. `bun run site` builds it into `dist-site/`, with the privacy policy rendered from `PRIVACY.md` and `PRIVACY.de.md` and a demo that runs Ebb's own search from `src/archive.ts`. `site/site.ts` lists every page's URL in both languages; a German browser landing on `/` goes to `/de/` unless the visitor picked a language. `alchemy.run.ts` serves it from Cloudflare. Calder deploys it on every push to `main` once `check` and `test` pass, and gives each pull request from a branch of this repository a preview at `https://pr-<number>-ebb.hauke-911.workers.dev`. Deploys read a dotenv file with `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, which Calder has as the project's `cloudflare` secret. By hand:
 
 ```sh
 bun alchemy deploy --stage prod --env-file <that file>
@@ -73,7 +74,7 @@ bun alchemy deploy --stage prod --env-file <that file>
 
 ## Release
 
-Bump `version` in `static/manifest.json` and push to `main`. [Calder](https://git.schnau.dev/schnau/calder) builds the extension once, checks types and unit tests (`qa`) and loads that build in Chromium (`e2e`). When both pass, the `release` action uploads the build's zip to the Chrome Web Store and submits it for review, publishing automatically once approved. A push whose version the store already has ends as `Unchanged`, and a newer version replaces one still waiting in review. `.calder/decide.ts` holds that decision and `test/release.test.ts` covers it.
+Bump `version` in `static/manifest.json` and push to `main`. [Calder](https://git.schnau.dev/schnau/calder) builds the extension once, runs `check` and `test` and loads that build in Chromium (`e2e`). When they pass, the `release` action uploads the build's zip to the Chrome Web Store and submits it for review, publishing automatically once approved. A push whose version the store already has ends as `Unchanged`, and a newer version replaces one still waiting in review. `.calder/decide.ts` holds that decision and `test/release.test.ts` covers it.
 
 ## License
 

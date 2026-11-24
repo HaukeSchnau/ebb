@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test"
+import { expect, test } from "vite-plus/test"
 import { decide, type Status } from "../.calder/decide.ts"
 
 const revision = (crxVersion: string, state?: string) => ({ state, distributionChannels: [{ crxVersion }] })

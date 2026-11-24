@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vite-plus/test";
 import { HOUR, MINUTE, RULES, age, assess, seenAt, type Memory, type TabFacts } from "../src/rules.ts";
 
 const at = (iso: string) => Date.parse(iso);

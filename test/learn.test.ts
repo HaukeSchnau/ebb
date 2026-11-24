@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from "vite-plus/test";
 import { remember, returned, suggest, type Archived } from "../src/learn.ts";
 import { DAY, HOUR } from "../src/rules.ts";
 

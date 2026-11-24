@@ -1,5 +1,5 @@
 import { Action, Files, Calder, On, Task, cmd } from "@calder-ci/core"
-import { Alchemy, Bun } from "@calder-ci/std"
+import { Alchemy, Bun, Vp } from "@calder-ci/std"
 import { Schema } from "effect"
 import { flake } from "./flake.ts"
 import * as WebStore from "./WebStore.ts"
@@ -16,8 +16,8 @@ const build = Task.make("build", {
   outputs: { dist: "dist", zip: "ebb.zip" },
 })
 
-/** Types and unit tests. */
-const qa = Task.make("qa", { shell, setup: install, run: cmd`bun run qa` })
+/** `vp check` (format, lint and types) and `vp test`. */
+const gate = Vp.tasks({ shell, setup: install })
 
 /** That exact build in Chromium. Its screenshots stay downloadable from the run, also when a check fails. */
 const e2e = Task.make("e2e", {
@@ -29,12 +29,12 @@ const e2e = Task.make("e2e", {
 })
 
 /**
- * Submits the build once qa and e2e pass, when its manifest names a version the store doesn't have
+ * Submits the build once the gate and e2e pass, when its manifest names a version the store doesn't have
  * yet: bumping the version and pushing is the release. Every other push ends as `Unchanged`.
  */
 const release = Action.make("release", {
   needs: { zip: build.outputs.zip, dist: build.outputs.dist },
-  after: [qa, e2e],
+  after: [...gate, e2e],
   grants: { secrets: ["chrome-web-store"] },
 }, function*({ zip, dist }) {
   return yield* WebStore.release(
@@ -43,7 +43,7 @@ const release = Action.make("release", {
   )
 })
 
-/** The website (alchemy.run.ts). It only needs qa to deploy; the extension's browser test gates the release. */
+/** The website (alchemy.run.ts). It only needs the gate to deploy; the extension's browser test gates the release. */
 const website = {
   shell,
   setup: install,
@@ -54,9 +54,9 @@ const website = {
 
 export default Calder.project({
   rules: [
-    On.pullRequest([qa, e2e]),
-    On.preview(Alchemy.preview(website, { url: (_pr, outputs) => outputs.url, after: [qa] })),
+    On.pullRequest([...gate, e2e]),
+    On.preview(Alchemy.preview(website, { url: (_pr, outputs) => outputs.url, after: [...gate] })),
     On.pullRequestClosed([Alchemy.destroy(website)]),
-    On.push("main", [release, Alchemy.deploy(website, { stage: "prod", after: [qa] })]),
+    On.push("main", [release, Alchemy.deploy(website, { stage: "prod", after: [...gate] })]),
   ],
 })
