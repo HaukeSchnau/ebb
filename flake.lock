@@ -1,12 +1,79 @@
 {
   "nodes": {
+    "home-manager": {
+      "inputs": {
+        "nixpkgs": [
+          "nix-infra-modules",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1783388784,
+        "narHash": "sha256-w+YU5vatysjLZIg1wOKSzo/RL9Z66eBQuIjVnBM/1Zg=",
+        "owner": "nix-community",
+        "repo": "home-manager",
+        "rev": "63d02d1c19f1c2b47a5bc7e55c620b6af7b218a6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "ref": "master",
+        "repo": "home-manager",
+        "type": "github"
+      }
+    },
+    "nix-darwin": {
+      "inputs": {
+        "nixpkgs": [
+          "nix-infra-modules",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1793418699,
+        "narHash": "sha256-+RpTlcdh9KqZ+ZiLkNSTvibQWm935EcIdBzRPCTFsrQ=",
+        "owner": "nix-darwin",
+        "repo": "nix-darwin",
+        "rev": "ff0e21a414d4547183396da1b44a66f2577b65e9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-darwin",
+        "ref": "master",
+        "repo": "nix-darwin",
+        "type": "github"
+      }
+    },
+    "nix-infra-modules": {
+      "inputs": {
+        "home-manager": "home-manager",
+        "nix-darwin": "nix-darwin",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1795551525,
+        "narHash": "sha256-YMm/h7r4Uo1u+Is0l/t0n11iXs03GNKAt0cVHO8jk10=",
+        "owner": "HaukeSchnau",
+        "repo": "nix-infra-modules",
+        "rev": "b365d13637b9dc83c397df542b5112a50ac8cbb9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "HaukeSchnau",
+        "repo": "nix-infra-modules",
+        "rev": "b365d13637b9dc83c397df542b5112a50ac8cbb9",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1791734076,
-        "narHash": "sha256-i5qk1kLiit98rRbh1AXmWBNT9QXC/y4l5Wk/u5EdpDQ=",
+        "lastModified": 1795234589,
+        "narHash": "sha256-f/VVvxf5RsQgWVhUtefoca5ktVg0DA2bnkMOcmSnozo=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "7fd4004d0511991fff3a0524856a9be09e28c5f0",
+        "rev": "2786a2a72088ecf32aea5b3ec52099e6a7cff78f",
         "type": "github"
       },
       "original": {
@@ -18,6 +85,7 @@
     },
     "root": {
       "inputs": {
+        "nix-infra-modules": "nix-infra-modules",
         "nixpkgs": "nixpkgs"
       }
     }
