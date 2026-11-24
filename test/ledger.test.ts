@@ -29,6 +29,7 @@ test("prune keeps every gap since the oldest open tab was last seen, however old
     start: t0 - daysAgo * DAY,
     end: t0 - daysAgo * DAY + 16 * HOUR,
   });
+
   const ledger = { presentAt: t0, gaps: [night(90), night(60), night(1)] };
   expect(prune(ledger, t0 - 70 * DAY).gaps).toEqual([night(60), night(1)]);
   expect(prune(ledger, t0 - 100 * DAY)).toBe(ledger);

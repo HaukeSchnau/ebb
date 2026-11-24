@@ -10,6 +10,7 @@ export function localeOf(language: string): Locale {
 /** Splits a span of time into whole days, hours and minutes. */
 function parts(ms: number) {
   const minutes = Math.max(0, Math.round(ms / MINUTE));
+
   return {
     days: Math.floor(minutes / (24 * 60)),
     hours: Math.floor(minutes / 60) % 24,
@@ -20,15 +21,21 @@ function parts(ms: number) {
 
 function enDuration(ms: number): string {
   const { days, hours, minutes, total } = parts(ms);
+
   if (total < 60) return `${minutes}m`;
+
   if (days === 0) return `${hours}h ${String(minutes).padStart(2, "0")}m`;
+
   return `${days}d ${hours}h`;
 }
 
 function deDuration(ms: number): string {
   const { days, hours, minutes, total } = parts(ms);
+
   if (total < 60) return `${minutes} Min.`;
+
   if (days === 0) return `${hours} Std.${minutes > 0 ? ` ${minutes} Min.` : ""}`;
+
   return `${days} T. ${hours} Std.`;
 }
 
@@ -130,9 +137,13 @@ const en = {
   // Times
   ago: (then: number, now: number): string => {
     const ms = Math.max(0, now - then);
+
     if (ms < MINUTE) return "just now";
+
     if (ms < HOUR) return `${Math.floor(ms / MINUTE)}m ago`;
+
     if (ms < DAY) return `${Math.floor(ms / HOUR)}h ago`;
+
     return `${Math.floor(ms / DAY)}d ago`;
   },
   duration: enDuration,
@@ -230,10 +241,14 @@ const de: Text = {
 
   ago: (then, now) => {
     const ms = Math.max(0, now - then);
+
     if (ms < MINUTE) return "gerade eben";
+
     if (ms < HOUR) return `vor ${Math.floor(ms / MINUTE)} Min.`;
+
     if (ms < DAY) return `vor ${Math.floor(ms / HOUR)} Std.`;
     const days = Math.floor(ms / DAY);
+
     return `vor ${days} ${days === 1 ? "Tag" : "Tagen"}`;
   },
   duration: deDuration,

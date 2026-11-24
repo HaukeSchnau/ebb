@@ -65,6 +65,7 @@ const layout = (page: Page) => {
   const t = (text: Localized) => text[locale];
   const url = (to: Locale) => `${origin}${routes[id][to]}`;
   const current = (to: PageId) => (to === id ? ' aria-current="page"' : "");
+
   return `<!doctype html>
 <html lang="${locale}">
 <head>
@@ -160,7 +161,9 @@ const pagesIn = async (locale: Locale): Promise<Page[]> => [
 const pages = (await Promise.all(locales.map(pagesIn))).flat();
 
 await rm(out, { recursive: true, force: true });
+
 await mkdir(out, { recursive: true });
+
 await Promise.all(
   pages.map((page) =>
     Bun.write(join(out, routes[page.id][page.locale], "index.html"), layout(page)),
@@ -173,6 +176,7 @@ const demo = await Bun.build({
   target: "browser",
   minify: true,
 });
+
 if (!demo.success) throw new AggregateError(demo.logs, "the demo didn't build");
 
 await Promise.all([

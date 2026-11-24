@@ -15,7 +15,9 @@ const now = at("2026-10-12T09:30:00Z");
 const longAgo = now - 48 * HOUR;
 
 type Tab = TabFacts & { id: number };
+
 let nextId = 1;
+
 const tab = (facts: Partial<TabFacts> = {}): Tab => ({
   id: nextId++,
   active: false,
@@ -26,6 +28,7 @@ const tab = (facts: Partial<TabFacts> = {}): Tab => ({
   lastAccessed: longAgo,
   ...facts,
 });
+
 const memory = (patch: Partial<Memory> = {}): Memory => ({
   now,
   gaps: [],
@@ -33,6 +36,7 @@ const memory = (patch: Partial<Memory> = {}): Memory => ({
   kept: new Set(),
   ...patch,
 });
+
 const verdictOf = (tabs: Tab[], target: Tab, m = memory(), rules = RULES) =>
   assess(tabs, m, rules).find((a) => a.id === target.id)?.verdict;
 

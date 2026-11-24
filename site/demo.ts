@@ -7,11 +7,14 @@ import { element, h } from "../src/ui.ts";
 import type { Locale, Localized } from "./site.ts";
 
 type Site = { url: string; title: string };
+
 type Why = "pinned" | "audible";
+
 type Tab = Site & ({ kind: "aging"; age: number } | { kind: "kept"; why: Why });
 
 const locale: Locale = document.documentElement.lang === "de" ? "de" : "en";
 const local = <T>(value: Localized<T>): T => value[locale];
+
 /** Ebb's own wording for times, as its panel shows them. */
 const time = texts[locale];
 
@@ -63,22 +66,22 @@ const copy = local<{
 });
 
 /** Favicons would come from the sites' servers, so the demo draws a letter instead. */
-const MARKS: Record<string, readonly [letter: string, color: string]> = {
-  "linear.app": ["L", "#5e6ad2"],
-  "youtube.com": ["▶", "#e0002b"],
-  "hono.dev": ["H", "#d24b00"],
-  "orm.drizzle.team": ["D", "#3d4a12"],
-  "caddyserver.com": ["C", "#1f7a4c"],
-  "vite.dev": ["V", "#7e14ff"],
-  "react.dev": ["R", "#087ea4"],
-  "news.ycombinator.com": ["Y", "#e85d00"],
-  "developer.mozilla.org": ["M", "#1b1b1b"],
-  "github.com": ["G", "#24292f"],
-  "stackoverflow.com": ["S", "#d76b0c"],
-  "google.com": ["F", "#1a73e8"],
-  "kingarthurbaking.com": ["K", "#b0122d"],
-  "ploetzblog.de": ["P", "#8b5a2b"],
-};
+const MARKS = new Map<string, readonly [letter: string, color: string]>([
+  ["linear.app", ["L", "#5e6ad2"]],
+  ["youtube.com", ["▶", "#e0002b"]],
+  ["hono.dev", ["H", "#d24b00"]],
+  ["orm.drizzle.team", ["D", "#3d4a12"]],
+  ["caddyserver.com", ["C", "#1f7a4c"]],
+  ["vite.dev", ["V", "#7e14ff"]],
+  ["react.dev", ["R", "#087ea4"]],
+  ["news.ycombinator.com", ["Y", "#e85d00"]],
+  ["developer.mozilla.org", ["M", "#1b1b1b"]],
+  ["github.com", ["G", "#24292f"]],
+  ["stackoverflow.com", ["S", "#d76b0c"]],
+  ["google.com", ["F", "#1a73e8"]],
+  ["kingarthurbaking.com", ["K", "#b0122d"]],
+  ["ploetzblog.de", ["P", "#8b5a2b"]],
+]);
 
 const TABS: readonly Tab[] = [
   {
@@ -190,14 +193,16 @@ let atComputer = 0;
 let away = 0;
 let busy = false;
 const rows = new Map<string, HTMLLIElement>();
+
 /** Each shown archive entry's site-and-age line, so time can move without rebuilding the list. */
 const metas = new Map<HTMLSpanElement, Entry>();
 const meta = (entry: Entry) => `${siteOf(entry.url)} · ${time.ago(entry.archivedAt, now)}`;
 
 function mark(url: string) {
-  const [letter, color] = MARKS[siteOf(url)] ?? ["•", "#6d6a63"];
+  const [letter, color] = MARKS.get(siteOf(url)) ?? ["•", "#6d6a63"];
   const node = h("span", { className: "mark", textContent: letter, ariaHidden: "true" });
   node.style.setProperty("--mark", color);
+
   return node;
 }
 
@@ -210,7 +215,9 @@ function tabRow(tab: Tab) {
     h("span", { className: "age" }),
     h("span", { className: "bar", ariaHidden: "true" }),
   );
+
   rows.set(tab.url, row);
+
   return row;
 }
 
@@ -219,6 +226,7 @@ function paint(tab: Tab, row: HTMLLIElement) {
   const life = tab.kind === "kept" ? 1 : Math.max(0, 1 - tab.age / THRESHOLD);
   row.style.setProperty("--life", life.toFixed(3));
   const age = row.querySelector(".age");
+
   if (age) age.textContent = tab.kind === "kept" ? copy.why[tab.why] : time.duration(tab.age);
 }
 
@@ -227,11 +235,12 @@ const rank = (tab: Tab) => (tab.kind === "kept" ? -1 : tab.age);
 
 function renderTabs() {
   tabList.replaceChildren(
-    ...[...tabs]
-      .sort((a, b) => rank(a) - rank(b))
+    ...tabs
+      .toSorted((a, b) => rank(a) - rank(b))
       .map((tab) => {
         const row = rows.get(tab.url) ?? tabRow(tab);
         paint(tab, row);
+
         return row;
       }),
   );
@@ -251,6 +260,7 @@ function renderArchive(fresh?: string) {
     ...found.map((entry) => {
       const line = h("span", { className: "meta", textContent: meta(entry) });
       metas.set(line, entry);
+
       const open = h(
         "button",
         { type: "button", className: "entry", title: copy.reopen },
@@ -258,7 +268,9 @@ function renderArchive(fresh?: string) {
         h("span", { className: "title", textContent: entry.title }),
         line,
       );
+
       open.addEventListener("click", () => reopen(entry));
+
       return h("li", { className: entry.url === fresh ? "fresh" : "" }, open);
     }),
   );
@@ -283,30 +295,46 @@ function reset() {
 /** An hour at the computer, played over STEP_MS: every unprotected tab ages, and those at the threshold ebb. */
 function passHour() {
   if (busy) return;
+
   if (!tabs.some((tab) => tab.kind === "aging")) {
     reset();
     said.textContent = copy.restarted;
+
     return;
   }
+
   busy = true;
   const start = performance.now();
   const span = calm.matches ? 0 : STEP_MS;
   let applied = 0;
   const gone: string[] = [];
-  const frame = (time: number) => {
-    const target = span === 0 ? HOUR : Math.min(HOUR, Math.max(0, (HOUR * (time - start)) / span));
+
+  const frame = (timestamp: number) => {
+    const target =
+      span === 0 ? HOUR : Math.min(HOUR, Math.max(0, (HOUR * (timestamp - start)) / span));
+
     const delta = target - applied;
     applied = target;
     now += delta;
     atComputer += delta;
+
     for (const tab of tabs) if (tab.kind === "aging") tab.age += delta;
-    for (const tab of tabs.filter((tab) => tab.kind === "aging" && tab.age >= THRESHOLD)) {
+
+    for (const tab of tabs.filter((aging) => aging.kind === "aging" && aging.age >= THRESHOLD)) {
       ebb(tab);
       gone.push(tab.title);
     }
+
     renderTabs();
+
     for (const [line, entry] of metas) line.textContent = meta(entry);
-    if (applied < HOUR) return requestAnimationFrame(frame);
+
+    if (applied < HOUR) {
+      requestAnimationFrame(frame);
+
+      return;
+    }
+
     busy = false;
     said.textContent =
       gone.length > 0
@@ -315,6 +343,7 @@ function passHour() {
           ? copy.aged
           : copy.allArchived;
   };
+
   requestAnimationFrame(frame);
 }
 
@@ -346,8 +375,11 @@ function reopen(entry: Entry) {
 }
 
 work.addEventListener("click", passHour);
+
 sleep.addEventListener("click", rest);
+
 input.addEventListener("input", () => renderArchive());
+
 example.addEventListener("click", () => {
   input.value = example.textContent ?? "";
   renderArchive();
@@ -366,5 +398,6 @@ if (!calm.matches) {
     },
     { threshold: 0.6 },
   );
+
   seen.observe(tabList);
 }

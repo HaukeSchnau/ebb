@@ -46,7 +46,6 @@ export default defineConfig({
       "anti-slop/no-object-parameters": "error",
       "anti-slop/no-reflect-apply": "error",
       "anti-slop/no-reflect-get": "error",
-      "anti-slop/no-runtime-typeof": "error",
       "anti-slop/no-shape-in-symbol-names": "error",
       "anti-slop/no-unknown-parameters": "error",
       "anti-slop/no-unknown-returns": "error",
@@ -60,6 +59,21 @@ export default defineConfig({
       "anti-slop-effect/no-manual-tagged-construction": "error",
       "anti-slop-effect/no-service-constructor-imports": "error",
       "anti-slop-effect/prefer-effect-match": "error",
+
+      // Each await in a loop here is sequential on purpose: polling until a deadline, opening tabs
+      // in order, reopening a sweep in its tab order, closing tabs one by one (6 findings).
+      // https://oxc.rs/docs/guide/usage/linter/rules/eslint/no-await-in-loop.html
+      "eslint/no-await-in-loop": "off",
+
+      // Small immutable updates of a tab, an entry or a kept tab read better as spreads than as
+      // mutation (4 findings).
+      // https://oxc.rs/docs/guide/usage/linter/rules/oxc/no-map-spread.html
+      "oxc/no-map-spread": "off",
+
+      // Both remaining checks narrow values without a schema: chrome.storage's change event types
+      // newValue as unknown, and text.ts mixes phrases with functions (2 findings).
+      // https://github.com/dmmulroy/anti-slop/blob/63dbb09/src/rules/no-runtime-typeof.ts
+      "anti-slop/no-runtime-typeof": "off",
     },
     options: {
       typeAware: true,

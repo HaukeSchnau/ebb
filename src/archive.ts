@@ -10,8 +10,10 @@ export type Sweep = { at: number; via: Via; entries: Entry[] };
 
 export function upsert(archive: readonly Entry[], added: readonly Entry[]): Entry[] {
   const byUrl = new Map<string, Entry>();
+
   for (const entry of [...added, ...archive])
     if (!byUrl.has(entry.url)) byUrl.set(entry.url, entry);
+
   return [...byUrl.values()];
 }
 
@@ -34,27 +36,35 @@ export function sweeps(archive: readonly Entry[]): Sweep[] {
  */
 export function search(archive: readonly Entry[], query: string, site?: string): Entry[] {
   const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+
   const inSite =
     site === undefined ? archive : archive.filter((entry) => siteOf(entry.url) === site);
+
   if (terms.length === 0) return [...inSite];
+
   return inSite
     .flatMap((entry, order) => {
       const haystack = `${entry.title} ${siteOf(entry.url)} ${entry.url}`.toLowerCase();
       let total = 0;
+
       for (const term of terms) {
         const s = score(haystack, term);
+
         if (s === 0) return [];
         total += s;
       }
+
       return [{ entry, total, order }];
     })
-    .sort((a, b) => b.total - a.total || a.order - b.order)
+    .toSorted((a, b) => b.total - a.total || a.order - b.order)
     .map(({ entry }) => entry);
 }
 
 function score(haystack: string, term: string): number {
   const at = haystack.indexOf(term);
+
   if (at >= 0) return 100 + (isWordStart(haystack, at) ? 50 : 0) - Math.min(at, 50);
+
   return inOrder(haystack, term) ? 10 : 0;
 }
 
@@ -64,10 +74,13 @@ function isWordStart(text: string, at: number): boolean {
 
 function inOrder(haystack: string, term: string): boolean {
   let from = 0;
+
   for (const char of term) {
     from = haystack.indexOf(char, from) + 1;
+
     if (from === 0) return false;
   }
+
   return true;
 }
 
@@ -75,7 +88,7 @@ function inOrder(haystack: string, term: string): boolean {
 export function topSites(archive: readonly Entry[], limit: number): string[] {
   return [...Map.groupBy(archive, (entry) => siteOf(entry.url))]
     .filter(([site, entries]) => site !== "" && entries.length >= 2)
-    .sort((a, b) => b[1].length - a[1].length)
+    .toSorted((a, b) => b[1].length - a[1].length)
     .slice(0, limit)
     .map(([site]) => site);
 }

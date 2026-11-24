@@ -18,11 +18,13 @@ export function observe(ledger: Ledger, now: number, present: boolean): Ledger {
   const { presentAt } = ledger;
   const missedTicks = presentAt !== null && now - presentAt > TICK_SLACK;
   const gaps = missedTicks ? [...ledger.gaps, { start: presentAt, end: now }] : ledger.gaps;
+
   return { presentAt: now, gaps };
 }
 
 // A gap that ended before the oldest open tab was last seen can't change any verdict.
 export function prune(ledger: Ledger, oldestSeen: number): Ledger {
   const gaps = ledger.gaps.filter((gap) => gap.end > oldestSeen);
+
   return gaps.length === ledger.gaps.length ? ledger : { ...ledger, gaps };
 }

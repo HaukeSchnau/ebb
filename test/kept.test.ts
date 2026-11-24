@@ -9,6 +9,7 @@ test("after a restart, kept tabs find their URLs again, one tab each", () => {
     { url: "https://a.dev/", id: 4 },
     { url: "https://a.dev/", id: 9 },
   ];
+
   const restored = rematch(
     kept,
     [
@@ -18,7 +19,8 @@ test("after a restart, kept tabs find their URLs again, one tab each", () => {
     ],
     now,
   );
-  expect([...keptIds(restored)].sort()).toEqual([101, 103]);
+
+  expect([...keptIds(restored)].toSorted((a, b) => a - b)).toEqual([101, 103]);
 });
 
 test("a kept tab that isn't back yet claims its URL when the tab shows up later, within a day", () => {

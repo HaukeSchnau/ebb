@@ -5,6 +5,7 @@ const revision = (crxVersion: string, state?: string) => ({
   state,
   distributionChannels: [{ crxVersion }],
 });
+
 const live = (version: string): Status => ({
   publishedItemRevisionStatus: revision(version, "PUBLISHED"),
 });

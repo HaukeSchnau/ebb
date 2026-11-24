@@ -10,7 +10,9 @@ const phrases = new Map(
 
 function phrase(key: string): string {
   const text = phrases.get(key);
+
   if (text === undefined) throw new Error(`text.ts has no phrase "${key}"`);
+
   return text;
 }
 
@@ -20,14 +22,20 @@ function phrase(key: string): string {
  */
 export function localize() {
   document.documentElement.lang = locale;
+
   for (const node of document.querySelectorAll<HTMLElement>(
     "[data-text], [data-html], [data-placeholder], [data-title], [data-label]",
   )) {
     const { text, html, placeholder, title, label } = node.dataset;
+
     if (text) node.textContent = phrase(text);
+
     if (html) node.innerHTML = phrase(html);
+
     if (placeholder) node.setAttribute("placeholder", phrase(placeholder));
+
     if (title) node.title = phrase(title);
+
     if (label) node.setAttribute("aria-label", phrase(label));
   }
 }

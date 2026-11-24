@@ -21,6 +21,8 @@ type Response<R extends Request> = { ok: true; value: Reply<R> } | { ok: false; 
 
 export async function send<R extends Request>(request: R): Promise<Reply<R>> {
   const response = await chrome.runtime.sendMessage<R, Response<R>>(request);
+
   if (!response.ok) throw new Error(response.error);
+
   return response.value;
 }

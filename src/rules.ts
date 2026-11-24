@@ -62,12 +62,14 @@ export function seenAt(
   ebbSaw: number | undefined,
 ): number | undefined {
   const accessed = tab.lastAccessed > PLAUSIBLE_SINCE ? tab.lastAccessed : 0;
+
   return Math.max(accessed, ebbSaw ?? 0) || undefined;
 }
 
 export function age(seen: number, rules: Rules, now: number, gaps: readonly Gap[]): Verdict {
   const away = rules.clock === "present" ? overlap(gaps, seen, now) : 0;
   const idleMs = Math.max(0, now - seen - away);
+
   return idleMs >= rules.thresholdMs
     ? { kind: "archive", idleMs }
     : { kind: "keep", idleMs, archivesInMs: rules.thresholdMs - idleMs };
@@ -82,17 +84,21 @@ export function assess<T extends TabFacts & { id?: number | undefined }>(
   const visibleSplits = new Set(
     tabs.flatMap((tab) => (tab.active && isSplit(tab) ? [tab.splitViewId] : [])),
   );
+
   return tabs.flatMap((tab) => {
     if (tab.id === undefined) return [];
     const seen = seenAt(tab, memory.ebbSaw[tab.id]);
     const since = seen ?? memory.now;
+
     const reason = protection(tab, rules, {
       kept: memory.kept.has(tab.id),
       split: isSplit(tab) && visibleSplits.has(tab.splitViewId),
     });
+
     const verdict: Verdict = reason
       ? { kind: "protected", reason }
       : age(since, rules, memory.now, memory.gaps);
+
     return [{ tab, id: tab.id, seen: since, firstSighting: seen === undefined, verdict }];
   });
 }
@@ -107,12 +113,19 @@ function protection(
   shields: { kept: boolean; split: boolean },
 ): Protection | undefined {
   if (tab.active) return "active";
+
   if (shields.split) return "split";
+
   if (tab.pinned) return "pinned";
+
   if (shields.kept) return "kept";
+
   if (isKeptSite(tab.url, rules.keptSites)) return "site";
+
   if (rules.protectGroups && tab.groupId !== UNGROUPED) return "group";
+
   if (rules.protectAudible && tab.audible) return "audible";
+
   return undefined;
 }
 
@@ -125,6 +138,7 @@ export function overlap(gaps: readonly Gap[], from: number, to: number): number 
 
 export function isKeptSite(url: string | undefined, keptSites: readonly string[]): boolean {
   const host = url ? hostOf(url) : "";
+
   return host !== "" && keptSites.some((site) => host === site || host.endsWith(`.${site}`));
 }
 

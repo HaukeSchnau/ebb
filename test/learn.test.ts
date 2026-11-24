@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vite-plus/test";
-import { remember, returned, suggest, type Archived } from "../src/learn.ts";
+import { remember, returned, suggest, type Archived, type Dismissed } from "../src/learn.ts";
 import { DAY, HOUR } from "../src/rules.ts";
 
 const now = Date.parse("2026-10-20T12:00:00Z");
 const twelve = 12 * HOUR;
-const current = { thresholdMs: twelve, keptSites: [] as string[] };
-const never = { thresholdUntil: 0, sites: [] as string[] };
+const current: Parameters<typeof suggest>[2] = { thresholdMs: twelve, keptSites: [] };
+const never: Dismissed = { thresholdUntil: 0, sites: [] };
 
 const archived = (n: number, patch: Partial<Archived> = {}): Archived[] =>
   Array.from({ length: n }, (_, i) => ({
@@ -40,12 +40,14 @@ describe("threshold suggestion", () => {
 
   test("ignores Clear window, other thresholds, late returns and recent archives", () => {
     const quick = { back: now - 3 * DAY + HOUR };
+
     const noise = [
       ...archived(20, { via: "clear", ...quick }),
       ...archived(20, { thresholdMs: 3 * HOUR, ...quick }),
       ...archived(20, { back: now }),
       ...archived(20, { at: now - HOUR, back: now }),
     ];
+
     expect(
       suggest([...archived(16), ...noise], now, current, never).filter(
         (s) => s.kind === "threshold",
@@ -67,16 +69,16 @@ describe("threshold suggestion", () => {
   });
 });
 
-describe("site suggestion", () => {
-  const linear = (n: number): Archived[] =>
-    Array.from({ length: n }, (_, i) => ({
-      url: `https://linear.app/urbs/issue/URB-${i}`,
-      at: now - 2 * DAY,
-      via: "auto",
-      thresholdMs: twelve,
-      back: now - DAY,
-    }));
+const linear = (n: number): Archived[] =>
+  Array.from({ length: n }, (_, i) => ({
+    url: `https://linear.app/urbs/issue/URB-${i}`,
+    at: now - 2 * DAY,
+    via: "auto",
+    thresholdMs: twelve,
+    back: now - DAY,
+  }));
 
+describe("site suggestion", () => {
   test("names the site you brought back most this week", () => {
     expect(suggest(linear(3), now, current, never)).toEqual([
       { kind: "site", site: "linear.app", returns: 3 },
@@ -93,12 +95,14 @@ describe("site suggestion", () => {
 
 test("returned marks the newest unreturned archive of a URL from the last week", () => {
   const url = "https://a.dev/";
+
   const history: Archived[] = [
     { url, at: now - 10 * DAY, via: "auto", thresholdMs: twelve },
     { url, at: now - DAY, via: "auto", thresholdMs: twelve },
   ];
+
   expect(returned(history, url, now)?.map((a) => a.back)).toEqual([undefined, now]);
-  expect(returned([history[0]!], url, now)).toBeUndefined();
+  expect(returned(history.slice(0, 1), url, now)).toBeUndefined();
 });
 
 test("remember forgets archives older than 30 days", () => {
