@@ -1,5 +1,14 @@
 import { describe, expect, test } from "vite-plus/test";
-import { HOUR, MINUTE, RULES, age, assess, seenAt, type Memory, type TabFacts } from "../src/rules.ts";
+import {
+  HOUR,
+  MINUTE,
+  RULES,
+  age,
+  assess,
+  seenAt,
+  type Memory,
+  type TabFacts,
+} from "../src/rules.ts";
 
 const at = (iso: string) => Date.parse(iso);
 const now = at("2026-10-12T09:30:00Z");
@@ -17,7 +26,13 @@ const tab = (facts: Partial<TabFacts> = {}): Tab => ({
   lastAccessed: longAgo,
   ...facts,
 });
-const memory = (patch: Partial<Memory> = {}): Memory => ({ now, gaps: [], ebbSaw: {}, kept: new Set(), ...patch });
+const memory = (patch: Partial<Memory> = {}): Memory => ({
+  now,
+  gaps: [],
+  ebbSaw: {},
+  kept: new Set(),
+  ...patch,
+});
 const verdictOf = (tabs: Tab[], target: Tab, m = memory(), rules = RULES) =>
   assess(tabs, m, rules).find((a) => a.id === target.id)?.verdict;
 
@@ -30,7 +45,10 @@ describe("assess protects", () => {
     ["site", { url: "https://app.linear.app/issues" }],
   ] as const)("%s tabs however old they are", (reason, facts) => {
     const t = tab(facts);
-    expect(verdictOf([t], t, memory(), { ...RULES, keptSites: ["linear.app"] })).toEqual({ kind: "protected", reason });
+    expect(verdictOf([t], t, memory(), { ...RULES, keptSites: ["linear.app"] })).toEqual({
+      kind: "protected",
+      reason,
+    });
   });
 
   test("kept tabs, by id", () => {
@@ -64,8 +82,15 @@ describe("age", () => {
   test("a weekend away ages a tab only under the wall clock", () => {
     const leftTab = at("2026-10-09T17:30:00Z");
     const weekend = [{ start: at("2026-10-09T18:00:00Z"), end: at("2026-10-12T09:00:00Z") }];
-    expect(age(leftTab, RULES, now, weekend)).toEqual({ kind: "keep", idleMs: HOUR, archivesInMs: 11 * HOUR });
-    expect(age(leftTab, { ...RULES, clock: "wall" }, now, weekend)).toEqual({ kind: "archive", idleMs: 64 * HOUR });
+    expect(age(leftTab, RULES, now, weekend)).toEqual({
+      kind: "keep",
+      idleMs: HOUR,
+      archivesInMs: 11 * HOUR,
+    });
+    expect(age(leftTab, { ...RULES, clock: "wall" }, now, weekend)).toEqual({
+      kind: "archive",
+      idleMs: 64 * HOUR,
+    });
   });
 });
 
@@ -88,6 +113,10 @@ test("assess treats a tab with no usable timestamps as a fresh first sighting", 
   const fresh = tab({ lastAccessed: 0 });
   const known = tab({ lastAccessed: now - 13 * HOUR });
   const [a, b] = assess([fresh, known], memory());
-  expect(a).toMatchObject({ id: fresh.id, firstSighting: true, verdict: { kind: "keep", idleMs: 0 } });
+  expect(a).toMatchObject({
+    id: fresh.id,
+    firstSighting: true,
+    verdict: { kind: "keep", idleMs: 0 },
+  });
   expect(b).toMatchObject({ id: known.id, firstSighting: false, verdict: { kind: "archive" } });
 });

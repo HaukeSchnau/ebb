@@ -11,7 +11,10 @@ const entry = (url: string, title: string, archivedAt: number, via?: Entry["via"
 
 test("upsert keeps one entry per URL, newest first", () => {
   const archive = [entry("https://a.dev/", "A", 2), entry("https://b.dev/", "B", 1)];
-  const result = upsert(archive, [entry("https://b.dev/", "B again", 3), entry("https://b.dev/", "B twin", 3)]);
+  const result = upsert(archive, [
+    entry("https://b.dev/", "B again", 3),
+    entry("https://b.dev/", "B twin", 3),
+  ]);
   expect(result.map((e) => e.title)).toEqual(["B again", "A"]);
 });
 
@@ -31,15 +34,25 @@ test("search needs every term, as a substring or as letters in order", () => {
 
 test("search ranks substring hits above letters in order, and word starts above the middle of a word", () => {
   expect(titles(search(archive, "schema"))[0]).toBe("Schema transformations");
-  expect(titles(search(archive, "eff"))).toEqual(["Pull requests · Effect-TS/effect", "Schema transformations"]);
+  expect(titles(search(archive, "eff"))).toEqual([
+    "Pull requests · Effect-TS/effect",
+    "Schema transformations",
+  ]);
 });
 
 test("search narrows to a site", () => {
-  expect(titles(search(archive, "", "github.com"))).toEqual(["Pull requests · Effect-TS/effect", "HaukeSchnau/ebb"]);
+  expect(titles(search(archive, "", "github.com"))).toEqual([
+    "Pull requests · Effect-TS/effect",
+    "HaukeSchnau/ebb",
+  ]);
 });
 
 test("sweeps group tabs archived together and remember how", () => {
-  const swept = sweeps([entry("https://a.dev/", "A", 9, "clear"), entry("https://b.dev/", "B", 9, "clear"), entry("https://c.dev/", "C", 4)]);
+  const swept = sweeps([
+    entry("https://a.dev/", "A", 9, "clear"),
+    entry("https://b.dev/", "B", 9, "clear"),
+    entry("https://c.dev/", "C", 4),
+  ]);
   expect(swept.map((s) => [s.at, s.via, s.entries.length])).toEqual([
     [9, "clear", 2],
     [4, "auto", 1],

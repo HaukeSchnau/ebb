@@ -10,7 +10,8 @@ export type Sweep = { at: number; via: Via; entries: Entry[] };
 
 export function upsert(archive: readonly Entry[], added: readonly Entry[]): Entry[] {
   const byUrl = new Map<string, Entry>();
-  for (const entry of [...added, ...archive]) if (!byUrl.has(entry.url)) byUrl.set(entry.url, entry);
+  for (const entry of [...added, ...archive])
+    if (!byUrl.has(entry.url)) byUrl.set(entry.url, entry);
   return [...byUrl.values()];
 }
 
@@ -33,7 +34,8 @@ export function sweeps(archive: readonly Entry[]): Sweep[] {
  */
 export function search(archive: readonly Entry[], query: string, site?: string): Entry[] {
   const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
-  const inSite = site === undefined ? archive : archive.filter((entry) => siteOf(entry.url) === site);
+  const inSite =
+    site === undefined ? archive : archive.filter((entry) => siteOf(entry.url) === site);
   if (terms.length === 0) return [...inSite];
   return inSite
     .flatMap((entry, order) => {

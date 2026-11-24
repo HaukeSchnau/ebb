@@ -25,8 +25,17 @@ describe("threshold suggestion", () => {
   });
 
   test("needs enough data and a high enough rate", () => {
-    expect(suggest([...archived(15), ...archived(4, { back: now - 2 * DAY })], now, current, never)).toEqual([]);
-    expect(suggest([...archived(40), ...archived(4, { back: now - 3 * DAY + HOUR })], now, current, never)).toEqual([]);
+    expect(
+      suggest([...archived(15), ...archived(4, { back: now - 2 * DAY })], now, current, never),
+    ).toEqual([]);
+    expect(
+      suggest(
+        [...archived(40), ...archived(4, { back: now - 3 * DAY + HOUR })],
+        now,
+        current,
+        never,
+      ),
+    ).toEqual([]);
   });
 
   test("ignores Clear window, other thresholds, late returns and recent archives", () => {
@@ -37,13 +46,24 @@ describe("threshold suggestion", () => {
       ...archived(20, { back: now }),
       ...archived(20, { at: now - HOUR, back: now }),
     ];
-    expect(suggest([...archived(16), ...noise], now, current, never).filter((s) => s.kind === "threshold")).toEqual([]);
+    expect(
+      suggest([...archived(16), ...noise], now, current, never).filter(
+        (s) => s.kind === "threshold",
+      ),
+    ).toEqual([]);
   });
 
   test("stays quiet while dismissed and at the longest threshold", () => {
     const history = [...archived(16), ...archived(4, { back: now - 3 * DAY + HOUR })];
     expect(suggest(history, now, current, { thresholdUntil: now + DAY, sites: [] })).toEqual([]);
-    expect(suggest(history.map((a) => ({ ...a, thresholdMs: 30 * DAY })), now, { ...current, thresholdMs: 30 * DAY }, never)).toEqual([]);
+    expect(
+      suggest(
+        history.map((a) => ({ ...a, thresholdMs: 30 * DAY })),
+        now,
+        { ...current, thresholdMs: 30 * DAY },
+        never,
+      ),
+    ).toEqual([]);
   });
 });
 
@@ -58,12 +78,16 @@ describe("site suggestion", () => {
     }));
 
   test("names the site you brought back most this week", () => {
-    expect(suggest(linear(3), now, current, never)).toEqual([{ kind: "site", site: "linear.app", returns: 3 }]);
+    expect(suggest(linear(3), now, current, never)).toEqual([
+      { kind: "site", site: "linear.app", returns: 3 },
+    ]);
   });
 
   test("skips kept and dismissed sites", () => {
     expect(suggest(linear(5), now, { ...current, keptSites: ["linear.app"] }, never)).toEqual([]);
-    expect(suggest(linear(5), now, current, { thresholdUntil: 0, sites: ["linear.app"] })).toEqual([]);
+    expect(suggest(linear(5), now, current, { thresholdUntil: 0, sites: ["linear.app"] })).toEqual(
+      [],
+    );
   });
 });
 

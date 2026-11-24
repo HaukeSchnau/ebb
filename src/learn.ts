@@ -19,13 +19,23 @@ const MIN_RETURNED = 4;
 const RETURN_RATE = 0.15;
 const SITE_RETURNS = 3;
 
-export function remember(history: readonly Archived[], added: readonly Archived[], now: number): Archived[] {
+export function remember(
+  history: readonly Archived[],
+  added: readonly Archived[],
+  now: number,
+): Archived[] {
   return [...history, ...added].filter((a) => a.at > now - REMEMBER);
 }
 
 /** Marks the newest unreturned archive of `url` from the last week as returned. */
-export function returned(history: readonly Archived[], url: string, now: number): Archived[] | undefined {
-  const index = history.findLastIndex((a) => a.url === url && a.back === undefined && a.at > now - RETURN_WINDOW);
+export function returned(
+  history: readonly Archived[],
+  url: string,
+  now: number,
+): Archived[] | undefined {
+  const index = history.findLastIndex(
+    (a) => a.url === url && a.back === undefined && a.at > now - RETURN_WINDOW,
+  );
   if (index < 0) return undefined;
   return history.with(index, { ...history[index]!, back: now });
 }
@@ -48,8 +58,18 @@ export function suggest(
   if (next !== undefined && now >= dismissed.thresholdUntil) {
     const settled = auto.filter((a) => a.thresholdMs === current.thresholdMs && a.at <= now - DAY);
     const quick = settled.filter((a) => a.back !== undefined && a.back - a.at <= DAY);
-    if (settled.length >= MIN_ARCHIVED && quick.length >= MIN_RETURNED && quick.length / settled.length >= RETURN_RATE) {
-      suggestions.push({ kind: "threshold", from: current.thresholdMs, to: next, returned: quick.length, total: settled.length });
+    if (
+      settled.length >= MIN_ARCHIVED &&
+      quick.length >= MIN_RETURNED &&
+      quick.length / settled.length >= RETURN_RATE
+    ) {
+      suggestions.push({
+        kind: "threshold",
+        from: current.thresholdMs,
+        to: next,
+        returned: quick.length,
+        total: settled.length,
+      });
     }
   }
 

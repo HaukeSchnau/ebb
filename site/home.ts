@@ -1,9 +1,9 @@
-import { type Locale, type Localized, routes, source, store } from "./site.ts"
+import { type Locale, type Localized, routes, source, store } from "./site.ts";
 
 export const home = (locale: Locale) => {
-  const t = (text: Localized) => text[locale]
-  const cta = `<a class="cta" href="${store}">${t({ en: "Add to Chrome", de: "Zu Chrome hinzufügen" })}</a>`
-  const keys = (...names: string[]) => names.map((name) => `<kbd>${name}</kbd>`).join(" ")
+  const t = (text: Localized) => text[locale];
+  const cta = `<a class="cta" href="${store}">${t({ en: "Add to Chrome", de: "Zu Chrome hinzufügen" })}</a>`;
+  const keys = (...names: string[]) => names.map((name) => `<kbd>${name}</kbd>`).join(" ");
 
   return `
 <section class="hero">
@@ -105,5 +105,5 @@ export const home = (locale: Locale) => {
     </div>
   </section>
 </div>
-`
-}
+`;
+};

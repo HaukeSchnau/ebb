@@ -15,7 +15,10 @@ async function renderThresholds() {
   const { thresholdMs } = await settings.get("thresholdMs");
   thresholds.replaceChildren(
     ...THRESHOLDS.map((ms) => {
-      const choice = h("button", { textContent: t.threshold(ms), onclick: () => void settings.set({ thresholdMs: ms }) });
+      const choice = h("button", {
+        textContent: t.threshold(ms),
+        onclick: () => void settings.set({ thresholdMs: ms }),
+      });
       choice.setAttribute("role", "radio");
       choice.setAttribute("aria-checked", String(ms === thresholdMs));
       return choice;
@@ -34,7 +37,11 @@ clear.addEventListener("click", async () => {
   result.textContent = t.archived(cleared.count);
   tryButtons.replaceChildren(
     // Opening the side panel needs a click, which this is.
-    h("button", { className: "primary", textContent: t.openArchive, onclick: () => void chrome.sidePanel.open({ windowId }) }),
+    h("button", {
+      className: "primary",
+      textContent: t.openArchive,
+      onclick: () => void chrome.sidePanel.open({ windowId }),
+    }),
     h("button", {
       textContent: t.bringBack,
       onclick: async () => {

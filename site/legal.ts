@@ -1,8 +1,8 @@
-import type { Locale, Localized } from "./site.ts"
+import type { Locale, Localized } from "./site.ts";
 
 /** The Impressum German law asks for, and its English translation. */
 export const legal = (locale: Locale) => {
-  const t = (text: Localized) => text[locale]
+  const t = (text: Localized) => text[locale];
   return `
 <article class="prose">
   <h1>${t({ en: "Legal notice", de: "Impressum" })}</h1>
@@ -28,5 +28,5 @@ export const legal = (locale: Locale) => {
     de: "Wir sind nicht verpflichtet und nicht bereit, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.",
   })}</p>
 </article>
-`
-}
+`;
+};

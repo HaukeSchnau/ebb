@@ -1,21 +1,31 @@
 // The website in dist-site/: every page in English and German around one layout, the privacy policy
 // rendered from PRIVACY.md and PRIVACY.de.md, and the demo bundled with Ebb's own search.
-import { cp, mkdir, rm } from "node:fs/promises"
-import { join } from "node:path"
-import { home } from "./home.ts"
-import { legal } from "./legal.ts"
-import { type Locale, type Localized, locales, origin, other, type PageId, routes, source, store } from "./site.ts"
+import { cp, mkdir, rm } from "node:fs/promises";
+import { join } from "node:path";
+import { home } from "./home.ts";
+import { legal } from "./legal.ts";
+import {
+  type Locale,
+  type Localized,
+  locales,
+  origin,
+  other,
+  type PageId,
+  routes,
+  source,
+  store,
+} from "./site.ts";
 
-const out = "dist-site"
+const out = "dist-site";
 
 type Page = {
-  id: PageId
-  locale: Locale
-  title: string
-  description: string
-  main: string
-  demo?: boolean
-}
+  id: PageId;
+  locale: Locale;
+  title: string;
+  description: string;
+  main: string;
+  demo?: boolean;
+};
 
 const chrome = {
   skip: { en: "Skip to content", de: "Zum Inhalt" },
@@ -32,7 +42,7 @@ const chrome = {
   },
   legalNav: { en: "Legal", de: "Rechtliches" },
   legal: { en: "Legal notice", de: "Impressum" },
-} as const satisfies Record<string, Localized>
+} as const satisfies Record<string, Localized>;
 
 // Inline, so a German browser leaves / before anything paints. Choosing a language with the switch wins.
 const languageScript = `<script>
@@ -48,13 +58,13 @@ addEventListener("click", (event) => {
   const link = event.target instanceof Element && event.target.closest("a[data-locale]")
   if (link) localStorage.setItem("ebb-locale", link.dataset.locale)
 })
-</script>`
+</script>`;
 
 const layout = (page: Page) => {
-  const { id, locale } = page
-  const t = (text: Localized) => text[locale]
-  const url = (to: Locale) => `${origin}${routes[id][to]}`
-  const current = (to: PageId) => (to === id ? ' aria-current="page"' : "")
+  const { id, locale } = page;
+  const t = (text: Localized) => text[locale];
+  const url = (to: Locale) => `${origin}${routes[id][to]}`;
+  const current = (to: PageId) => (to === id ? ' aria-current="page"' : "");
   return `<!doctype html>
 <html lang="${locale}">
 <head>
@@ -106,16 +116,18 @@ ${page.main.trim()}
 </footer>
 ${page.demo ? '<script type="module" src="/demo.js"></script>\n' : ""}</body>
 </html>
-`
-}
+`;
+};
 
-const policies: Localized = { en: "PRIVACY.md", de: "PRIVACY.de.md" }
+const policies: Localized = { en: "PRIVACY.md", de: "PRIVACY.de.md" };
 
 const pagesIn = async (locale: Locale): Promise<Page[]> => [
   {
     id: "home",
     locale,
-    title: { en: "Ebb: auto-archive old tabs", de: "Ebb: alte Tabs automatisch archivieren" }[locale],
+    title: { en: "Ebb: auto-archive old tabs", de: "Ebb: alte Tabs automatisch archivieren" }[
+      locale
+    ],
     description: {
       en: "Ebb closes tabs you've stopped looking at and keeps them in an archive you can search, like Arc's auto-archive did.",
       de: "Ebb schließt Tabs, die du nicht mehr ansiehst, und bewahrt sie in einem durchsuchbaren Archiv auf, so wie das Auto-Archiv von Arc.",
@@ -143,16 +155,25 @@ const pagesIn = async (locale: Locale): Promise<Page[]> => [
     }[locale],
     main: legal(locale),
   },
-]
+];
 
-const pages = (await Promise.all(locales.map(pagesIn))).flat()
+const pages = (await Promise.all(locales.map(pagesIn))).flat();
 
-await rm(out, { recursive: true, force: true })
-await mkdir(out, { recursive: true })
-await Promise.all(pages.map((page) => Bun.write(join(out, routes[page.id][page.locale], "index.html"), layout(page))))
+await rm(out, { recursive: true, force: true });
+await mkdir(out, { recursive: true });
+await Promise.all(
+  pages.map((page) =>
+    Bun.write(join(out, routes[page.id][page.locale], "index.html"), layout(page)),
+  ),
+);
 
-const demo = await Bun.build({ entrypoints: ["site/demo.ts"], outdir: out, target: "browser", minify: true })
-if (!demo.success) throw new AggregateError(demo.logs, "the demo didn't build")
+const demo = await Bun.build({
+  entrypoints: ["site/demo.ts"],
+  outdir: out,
+  target: "browser",
+  minify: true,
+});
+if (!demo.success) throw new AggregateError(demo.logs, "the demo didn't build");
 
 await Promise.all([
   cp("site/style.css", join(out, "style.css")),
@@ -163,4 +184,4 @@ await Promise.all([
     "node_modules/@fontsource-variable/instrument-sans/files/instrument-sans-latin-wdth-normal.woff2",
     join(out, "instrument-sans.woff2"),
   ),
-])
+]);

@@ -4,7 +4,9 @@ import { localeOf, texts } from "./text.ts";
 export const locale = localeOf(chrome.i18n.getUILanguage());
 export const t = texts[locale];
 
-const phrases = new Map(Object.entries(t).filter((entry): entry is [string, string] => typeof entry[1] === "string"));
+const phrases = new Map(
+  Object.entries(t).filter((entry): entry is [string, string] => typeof entry[1] === "string"),
+);
 
 function phrase(key: string): string {
   const text = phrases.get(key);
@@ -18,7 +20,9 @@ function phrase(key: string): string {
  */
 export function localize() {
   document.documentElement.lang = locale;
-  for (const node of document.querySelectorAll<HTMLElement>("[data-text], [data-html], [data-placeholder], [data-title], [data-label]")) {
+  for (const node of document.querySelectorAll<HTMLElement>(
+    "[data-text], [data-html], [data-placeholder], [data-title], [data-label]",
+  )) {
     const { text, html, placeholder, title, label } = node.dataset;
     if (text) node.textContent = phrase(text);
     if (html) node.innerHTML = phrase(html);

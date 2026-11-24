@@ -42,16 +42,16 @@ Then turn on Developer mode at `chrome://extensions`, choose Load unpacked, and 
 
 Ebb makes no network requests and has no server. The archive stays on your device. See [PRIVACY.md](PRIVACY.md).
 
-| Permission | Why |
-| --- | --- |
-| `tabs` | Read the URL, title, and last-active time of tabs, close stale ones, and reopen archived ones. It doesn't grant access to page content. |
-| `alarms` | Check for stale tabs once a minute. |
-| `idle` | Notice when you're away, so that time doesn't age your tabs. |
-| `sessions` | Reopen archived tabs with their back/forward history. |
-| `sidePanel` | Show the archive next to the page. |
-| `storage` | Keep the archive, away periods, and settings on your device. |
-| `favicon` | Show site icons from the browser's local cache. |
-| `contextMenus` | "Keep this tab" and "Never archive this site" when you right-click a page. |
+| Permission     | Why                                                                                                                                     |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `tabs`         | Read the URL, title, and last-active time of tabs, close stale ones, and reopen archived ones. It doesn't grant access to page content. |
+| `alarms`       | Check for stale tabs once a minute.                                                                                                     |
+| `idle`         | Notice when you're away, so that time doesn't age your tabs.                                                                            |
+| `sessions`     | Reopen archived tabs with their back/forward history.                                                                                   |
+| `sidePanel`    | Show the archive next to the page.                                                                                                      |
+| `storage`      | Keep the archive, away periods, and settings on your device.                                                                            |
+| `favicon`      | Show site icons from the browser's local cache.                                                                                         |
+| `contextMenus` | "Keep this tab" and "Never archive this site" when you right-click a page.                                                              |
 
 ## Develop
 

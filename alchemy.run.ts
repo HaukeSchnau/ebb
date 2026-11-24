@@ -1,14 +1,14 @@
-import * as Alchemy from "alchemy"
-import * as Cloudflare from "@alchemy.run/cloudflare"
-import * as Effect from "effect/Effect"
+import * as Alchemy from "alchemy";
+import * as Cloudflare from "@alchemy.run/cloudflare";
+import * as Effect from "effect/Effect";
 
-const productionStage = "prod"
+const productionStage = "prod";
 
 const headers = `
 /*
   Referrer-Policy: strict-origin-when-cross-origin
   X-Content-Type-Options: nosniff
-`
+`;
 
 /**
  * The website (site/), served by Cloudflare's asset layer without a script. Production answers at
@@ -24,7 +24,7 @@ export default Alchemy.Stack(
     state: Cloudflare.state({ workerName: "alchemy-state-store-fleet" }),
   },
   Effect.gen(function* () {
-    const { stage } = yield* Alchemy.Stack
+    const { stage } = yield* Alchemy.Stack;
     const site = yield* Cloudflare.Website.StaticSite("Site", {
       command: "bun run site",
       outdir: "dist-site",
@@ -32,9 +32,13 @@ export default Alchemy.Stack(
       compatibility: { date: "2026-10-01" },
       assets: { headers },
       ...(stage === productionStage
-        ? { name: "ebb", workersDev: { enabled: false, previewsEnabled: true }, domain: "ebb.schnau.dev" }
+        ? {
+            name: "ebb",
+            workersDev: { enabled: false, previewsEnabled: true },
+            domain: "ebb.schnau.dev",
+          }
         : { preview: { of: yield* Cloudflare.Worker.ref("Site", { stage: productionStage }) } }),
-    })
-    return { url: site.url }
+    });
+    return { url: site.url };
   }),
-)
+);

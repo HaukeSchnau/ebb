@@ -39,7 +39,10 @@ export function follow(kept: KeptTab[], tab: Tab, now: number): KeptTab[] {
   const alive = kept.filter((k) => k.lostAt === undefined || k.lostAt > now - WAIT);
   const unchanged = alive.length === kept.length;
   const mine = alive.findIndex((k) => k.id === tab.id);
-  if (mine >= 0) return unchanged && alive[mine]!.url === tab.url ? kept : alive.with(mine, { url: tab.url, id: tab.id });
+  if (mine >= 0)
+    return unchanged && alive[mine]!.url === tab.url
+      ? kept
+      : alive.with(mine, { url: tab.url, id: tab.id });
   const waiting = alive.findIndex((k) => k.id === undefined && k.url === tab.url);
   if (waiting >= 0) return alive.with(waiting, { url: tab.url, id: tab.id });
   return unchanged ? kept : alive;

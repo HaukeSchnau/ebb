@@ -45,14 +45,18 @@ async function setup() {
   await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
   await chrome.action.setBadgeBackgroundColor({ color: "#5a54d6" });
   const active = await chrome.tabs.query({ active: true, windowType: "normal" });
-  const activeByWindow = Object.fromEntries(active.flatMap((tab) => (tab.id === undefined ? [] : [[tab.windowId, tab.id]])));
+  const activeByWindow = Object.fromEntries(
+    active.flatMap((tab) => (tab.id === undefined ? [] : [[tab.windowId, tab.id]])),
+  );
   await serial(() => session.set({ activeByWindow }));
   await renderBadge();
 }
 
 async function openTabs() {
   const tabs = await chrome.tabs.query({ windowType: "normal" });
-  return tabs.flatMap((tab) => (tab.id === undefined || tab.url === undefined ? [] : [{ id: tab.id, url: tab.url }]));
+  return tabs.flatMap((tab) =>
+    tab.id === undefined || tab.url === undefined ? [] : [{ id: tab.id, url: tab.url }],
+  );
 }
 
 // ---------------------------------------------------------------- sweeping
@@ -71,10 +75,13 @@ async function tick() {
 
   const tabs = await chrome.tabs.query({ windowType: "normal" });
   const assessed = await assessAndRemember(tabs, now, observed.gaps, rules);
-  const next = assessed.length > 0 ? prune(observed, Math.min(...assessed.map((a) => a.seen))) : observed;
+  const next =
+    assessed.length > 0 ? prune(observed, Math.min(...assessed.map((a) => a.seen))) : observed;
   if (next !== ledger) await local.set({ ledger: next });
   await archiveTabs(
-    assessed.flatMap(({ tab, id, verdict }) => (verdict.kind === "archive" ? [{ tab, id, idleMs: verdict.idleMs }] : [])),
+    assessed.flatMap(({ tab, id, verdict }) =>
+      verdict.kind === "archive" ? [{ tab, id, idleMs: verdict.idleMs }] : [],
+    ),
     now,
     "auto",
     rules,
@@ -90,15 +97,25 @@ async function clearWindow(windowId: number): Promise<Cleared | null> {
   ]);
   const assessed = await assessAndRemember(tabs, now, ledger.gaps, rules);
   return archiveTabs(
-    assessed.flatMap(({ tab, id, verdict }) => (verdict.kind === "protected" ? [] : [{ tab, id, idleMs: verdict.idleMs }])),
+    assessed.flatMap(({ tab, id, verdict }) =>
+      verdict.kind === "protected" ? [] : [{ tab, id, idleMs: verdict.idleMs }],
+    ),
     now,
     "clear",
     rules,
   );
 }
 
-async function assessAndRemember(tabs: chrome.tabs.Tab[], now: number, gaps: readonly Gap[], rules: Rules) {
-  const [{ ebbSaw }, { keptTabs }] = await Promise.all([session.get("ebbSaw"), local.get("keptTabs")]);
+async function assessAndRemember(
+  tabs: chrome.tabs.Tab[],
+  now: number,
+  gaps: readonly Gap[],
+  rules: Rules,
+) {
+  const [{ ebbSaw }, { keptTabs }] = await Promise.all([
+    session.get("ebbSaw"),
+    local.get("keptTabs"),
+  ]);
   const assessed = assess(tabs, { now, gaps, ebbSaw, kept: keptIds(keptTabs) }, rules);
   const firstSightings = assessed.filter((a) => a.firstSighting);
   if (firstSightings.length > 0) {
@@ -108,12 +125,24 @@ async function assessAndRemember(tabs: chrome.tabs.Tab[], now: number, gaps: rea
   return assessed;
 }
 
-async function archiveTabs(doomed: readonly Doomed[], now: number, via: Via, rules: Rules): Promise<Cleared | null> {
+async function archiveTabs(
+  doomed: readonly Doomed[],
+  now: number,
+  via: Via,
+  rules: Rules,
+): Promise<Cleared | null> {
   if (doomed.length === 0) return null;
   const entries = doomed.flatMap(({ tab, idleMs }): Entry[] =>
-    isRecordable(tab.url) ? [{ url: tab.url, title: tab.title || tab.url, archivedAt: now, idleMs, via }] : [],
+    isRecordable(tab.url)
+      ? [{ url: tab.url, title: tab.title || tab.url, archivedAt: now, idleMs, via }]
+      : [],
   );
-  const archived = entries.map((e): Archived => ({ url: e.url, at: now, via, thresholdMs: rules.thresholdMs }));
+  const archived = entries.map((e): Archived => ({
+    url: e.url,
+    at: now,
+    via,
+    thresholdMs: rules.thresholdMs,
+  }));
   const { archive, unseen, history } = await local.get("archive", "unseen", "history");
   await local.set({
     archive: upsert(archive, entries),
@@ -137,22 +166,30 @@ chrome.tabs.onActivated.addListener(({ tabId, windowId }) => {
   refreshMenus();
 });
 
-chrome.tabs.onRemoved.addListener((tabId) =>
-  void serial(async () => {
-    const [{ ebbSaw }, { keptTabs }] = await Promise.all([session.get("ebbSaw"), local.get("keptTabs")]);
-    delete ebbSaw[tabId];
-    await session.set({ ebbSaw });
-    if (keptTabs.some((k) => k.id === tabId)) await local.set({ keptTabs: release(keptTabs, tabId) });
-  }),
+chrome.tabs.onRemoved.addListener(
+  (tabId) =>
+    void serial(async () => {
+      const [{ ebbSaw }, { keptTabs }] = await Promise.all([
+        session.get("ebbSaw"),
+        local.get("keptTabs"),
+      ]);
+      delete ebbSaw[tabId];
+      await session.set({ ebbSaw });
+      if (keptTabs.some((k) => k.id === tabId))
+        await local.set({ keptTabs: release(keptTabs, tabId) });
+    }),
 );
 
-chrome.tabs.onReplaced.addListener((added, removed) =>
-  void serial(async () => {
-    const { keptTabs } = await local.get("keptTabs");
-    if (keptTabs.some((k) => k.id === removed)) {
-      await local.set({ keptTabs: keptTabs.map((k) => (k.id === removed ? { ...k, id: added } : k)) });
-    }
-  }),
+chrome.tabs.onReplaced.addListener(
+  (added, removed) =>
+    void serial(async () => {
+      const { keptTabs } = await local.get("keptTabs");
+      if (keptTabs.some((k) => k.id === removed)) {
+        await local.set({
+          keptTabs: keptTabs.map((k) => (k.id === removed ? { ...k, id: added } : k)),
+        });
+      }
+    }),
 );
 
 chrome.tabs.onCreated.addListener((tab) => {
@@ -192,16 +229,22 @@ let watchedCache: Promise<Watched> | undefined;
 
 // Most navigations concern none of this, so they shouldn't read the whole archive.
 function watched(): Promise<Watched> {
-  watchedCache ??= local.get("archive", "history", "keptTabs").then(({ archive, history, keptTabs }) => ({
-    urls: new Set([...archive.map((e) => e.url), ...history.flatMap((a) => (a.back === undefined ? [a.url] : []))]),
-    keptIds: keptIds(keptTabs),
-    waiting: new Set(keptTabs.flatMap((k) => (k.id === undefined ? [k.url] : []))),
-  }));
+  watchedCache ??= local
+    .get("archive", "history", "keptTabs")
+    .then(({ archive, history, keptTabs }) => ({
+      urls: new Set([
+        ...archive.map((e) => e.url),
+        ...history.flatMap((a) => (a.back === undefined ? [a.url] : [])),
+      ]),
+      keptIds: keptIds(keptTabs),
+      waiting: new Set(keptTabs.flatMap((k) => (k.id === undefined ? [k.url] : []))),
+    }));
   return watchedCache;
 }
 
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === "local" && (changes.archive || changes.history || changes.keptTabs)) watchedCache = undefined;
+  if (area === "local" && (changes.archive || changes.history || changes.keptTabs))
+    watchedCache = undefined;
   if (changes.keptTabs || changes.keptSites) refreshMenus();
 });
 
@@ -219,7 +262,10 @@ async function reopen(url: string, disposition: Disposition, active = true) {
   const now = Date.now();
   const { archive, history } = await local.get("archive", "history");
   const back = returned(history, url, now);
-  await local.set({ archive: without(archive, new Set([url])), ...(back ? { history: back } : {}) });
+  await local.set({
+    archive: without(archive, new Set([url])),
+    ...(back ? { history: back } : {}),
+  });
 }
 
 async function reopenSweep(at: number) {
@@ -239,9 +285,17 @@ const MENU = { tab: "keep-tab", site: "keep-site" } as const;
 
 function createMenus() {
   void chrome.contextMenus.removeAll().then(() => {
-    const contexts: [`${chrome.contextMenus.ContextType}`, ...`${chrome.contextMenus.ContextType}`[]] = ["page", "action"];
+    const contexts: [
+      `${chrome.contextMenus.ContextType}`,
+      ...`${chrome.contextMenus.ContextType}`[],
+    ] = ["page", "action"];
     chrome.contextMenus.create({ id: MENU.tab, title: t.keepTab, type: "checkbox", contexts });
-    chrome.contextMenus.create({ id: MENU.site, title: t.neverArchiveThisSite, type: "checkbox", contexts });
+    chrome.contextMenus.create({
+      id: MENU.site,
+      title: t.neverArchiveThisSite,
+      type: "checkbox",
+      contexts,
+    });
     refreshMenus();
   });
 }
@@ -273,16 +327,21 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (info.menuItemId === MENU.tab && tab?.id !== undefined) {
       const { keptTabs } = await local.get("keptTabs");
       const url = tab.url ?? tab.pendingUrl ?? "";
-      await local.set({ keptTabs: info.checked ? keep(keptTabs, { id: tab.id, url }) : release(keptTabs, tab.id) });
+      await local.set({
+        keptTabs: info.checked ? keep(keptTabs, { id: tab.id, url }) : release(keptTabs, tab.id),
+      });
     }
-    if (info.menuItemId === MENU.site && tab?.url) await keepSite(siteOf(tab.url), info.checked === true);
+    if (info.menuItemId === MENU.site && tab?.url)
+      await keepSite(siteOf(tab.url), info.checked === true);
   });
 });
 
 async function keepSite(site: string, kept: boolean) {
   if (!site) return;
   const { keptSites } = await settings.get("keptSites");
-  const next = kept ? [...new Set([...keptSites, site])].sort() : keptSites.filter((s) => s !== site);
+  const next = kept
+    ? [...new Set([...keptSites, site])].sort()
+    : keptSites.filter((s) => s !== site);
   await settings.set({ keptSites: next });
 }
 
@@ -305,7 +364,11 @@ async function dismiss(suggestion: Suggestion) {
 
 // ---------------------------------------------------------------- messages
 
-type Handlers = { [T in Request["type"]]: (request: Extract<Request, { type: T }>) => Promise<Reply<Extract<Request, { type: T }>>> };
+type Handlers = {
+  [T in Request["type"]]: (
+    request: Extract<Request, { type: T }>,
+  ) => Promise<Reply<Extract<Request, { type: T }>>>;
+};
 
 const handlers: Handlers = {
   reopen: ({ url }) => reopen(url, "newForegroundTab"),
@@ -340,7 +403,8 @@ chrome.runtime.onMessage.addListener((request: Request, _sender, reply) => {
 
 chrome.commands.onCommand.addListener((command, tab) => {
   const windowId = tab?.windowId;
-  if (command === "clear-window" && windowId !== undefined) void serial(() => clearWindow(windowId));
+  if (command === "clear-window" && windowId !== undefined)
+    void serial(() => clearWindow(windowId));
 });
 
 // ---------------------------------------------------------------- address bar
@@ -361,10 +425,11 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
   });
 });
 
-chrome.omnibox.onInputEntered.addListener((text, disposition) =>
-  void serial(async () => {
-    const { archive } = await local.get("archive");
-    const entry = archive.find((candidate) => candidate.url === text) ?? search(archive, text)[0];
-    if (entry) await reopen(entry.url, disposition);
-  }),
+chrome.omnibox.onInputEntered.addListener(
+  (text, disposition) =>
+    void serial(async () => {
+      const { archive } = await local.get("archive");
+      const entry = archive.find((candidate) => candidate.url === text) ?? search(archive, text)[0];
+      if (entry) await reopen(entry.url, disposition);
+    }),
 );

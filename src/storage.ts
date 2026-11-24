@@ -21,7 +21,9 @@ type Session = { ebbSaw: Record<string, number>; activeByWindow: Record<string, 
 function area<S extends Record<string, unknown>>(storage: chrome.storage.StorageArea, defaults: S) {
   return {
     get: <K extends keyof S & string>(...keys: K[]) =>
-      storage.get<Pick<S, K>>(Object.fromEntries(keys.map((key) => [key, defaults[key]])) as Pick<S, K>),
+      storage.get<Pick<S, K>>(
+        Object.fromEntries(keys.map((key) => [key, defaults[key]])) as Pick<S, K>,
+      ),
     set: (patch: Partial<S>) => storage.set(patch),
   };
 }
