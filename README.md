@@ -61,7 +61,7 @@ bun run zip     # dist/ and ebb.zip for the Chrome Web Store (needs zip)
 nix develop .#e2e -c bun run e2e   # the build in Chromium, screenshots in e2e/out
 ```
 
-Plain `tsc` and no bundler, since MV3 service workers load ES modules directly. Every word the extension shows lives in `src/text.ts`, in English and German, and the manifest's in `static/_locales`. The rules in `src/rules.ts` and the ledger in `src/ledger.ts` are pure functions. `src/background.ts` owns every storage write.
+Plain `tsrs` and no bundler, since MV3 service workers load ES modules directly. Every word the extension shows lives in `src/text.ts`, in English and German, and the manifest's in `static/_locales`. The rules in `src/rules.ts` and the ledger in `src/ledger.ts` are pure functions. `src/background.ts` owns every storage write.
 
 ## Website
 
