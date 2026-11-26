@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nix-infra-modules = {
-      url = "github:HaukeSchnau/nix-infra-modules/b365d13637b9dc83c397df542b5112a50ac8cbb9";
+      url = "github:HaukeSchnau/nix-infra-modules/e73ea54e41051f2d4b39890b56346beb5ef2aa88";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
